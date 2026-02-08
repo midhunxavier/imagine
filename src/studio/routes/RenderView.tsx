@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { figures } from '../../figures/manifest';
-import type { FigureVariant } from '../../figures/manifest';
+import { useLocation, useParams } from 'react-router-dom';
+import type { FigureVariant, ProjectDefinition } from '../../core/manifest';
 import { resolveSize } from '../../framework/sizing';
 import { loadFigureComponent } from '../figureLoader';
 import { waitForMathTasks } from '../../framework/math/mathjax';
+import { loadProject } from '../projectLoader';
+import { base64UrlDecodeToString } from '../base64url';
 
 declare global {
   interface Window {
@@ -28,12 +29,39 @@ async function waitForPendingMathDom(maxMs: number) {
 }
 
 export function RenderView() {
+  const location = useLocation();
   const params = useParams();
+  const projectId = params.projectId ?? '';
   const figureId = params.figureId ?? '';
   const variantId = params.variantId;
   const [FigureComponent, setFigureComponent] = useState<React.ComponentType<any> | null>(null);
+  const [project, setProject] = useState<ProjectDefinition | null>(null);
 
-  const fig = figures.find((f) => f.id === figureId);
+  const propsOverride = useMemo(() => {
+    const encoded = new URLSearchParams(location.search).get('props');
+    if (!encoded) return null;
+    try {
+      const decoded = base64UrlDecodeToString(encoded);
+      const parsed = JSON.parse(decoded);
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return null;
+      return parsed as Record<string, unknown>;
+    } catch {
+      return null;
+    }
+  }, [location.search]);
+
+  useEffect(() => {
+    if (!projectId) return;
+    setProject(null);
+    loadProject(projectId).then(setProject, (err) => {
+      // eslint-disable-next-line no-console
+      console.error(err);
+      setProject(() => null);
+      window.__IMAGINE_READY__ = true;
+    });
+  }, [projectId]);
+
+  const fig = project?.figures.find((f) => f.id === figureId);
   const variant: FigureVariant | undefined = useMemo(() => {
     if (!fig) return undefined;
     if (variantId) return fig.variants.find((v) => v.id === variantId) ?? fig.variants[0];
@@ -44,12 +72,12 @@ export function RenderView() {
     window.__IMAGINE_READY__ = false;
     if (!fig) return;
     setFigureComponent(null);
-    loadFigureComponent(fig.moduleKey).then((Component) => setFigureComponent(() => Component), (err) => {
+    loadFigureComponent(projectId, fig.moduleKey).then((Component) => setFigureComponent(() => Component), (err) => {
       // eslint-disable-next-line no-console
       console.error(err);
       setFigureComponent(() => () => null);
     });
-  }, [fig?.moduleKey]);
+  }, [projectId, fig?.moduleKey]);
 
   useEffect(() => {
     if (!fig || !variant || !FigureComponent) return;
@@ -73,17 +101,18 @@ export function RenderView() {
       console.error(err);
       window.__IMAGINE_READY__ = true;
     });
-  }, [fig?.id, variant?.id, variant?.background, FigureComponent]);
+  }, [fig?.id, variant?.id, variant?.background, FigureComponent, location.search]);
 
   if (!fig || !variant) return null;
 
   const size = resolveSize(variant.size ?? fig.size);
   const background = variant.background ?? 'white';
+  const mergedProps = { ...(variant.props ?? {}), ...(propsOverride ?? {}) };
   const props = {
     width: size.width,
     height: size.height,
     background,
-    ...(variant.props as any)
+    ...(mergedProps as any)
   };
 
   return (

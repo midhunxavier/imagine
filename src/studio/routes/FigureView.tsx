@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { figures } from '../../figures/manifest';
+import { inferControlsFromProps } from '../../core/controls';
+import type { FigureControl, FigureVariant, ProjectDefinition } from '../../core/manifest';
 import { resolveSize } from '../../framework/sizing';
-import type { FigureVariant } from '../../figures/manifest';
 import { loadFigureComponent } from '../figureLoader';
+import { loadProject } from '../projectLoader';
+import { useProjectProps } from '../useProjectProps';
 
 type ZoomMode = { kind: 'fit' } | { kind: 'percent'; value: number };
 
@@ -34,23 +36,35 @@ function coerceZoomValue(value: number) {
 export function FigureView() {
   const navigate = useNavigate();
   const params = useParams();
+  const projectId = params.projectId ?? '';
   const figureId = params.figureId ?? '';
   const variantId = params.variantId;
   const [FigureComponent, setFigureComponent] = useState<React.ComponentType<any> | null>(null);
   const [zoom, setZoom] = useState<ZoomMode>({ kind: 'fit' });
   const [checker, setChecker] = useState(false);
+  const [project, setProject] = useState<ProjectDefinition | null>(null);
+  const [projectError, setProjectError] = useState<string | null>(null);
 
-  const fig = figures.find((f) => f.id === figureId);
+  useEffect(() => {
+    if (!projectId) return;
+    setProject(null);
+    setProjectError(null);
+    loadProject(projectId).then(setProject, (err) => setProjectError(String(err?.message ?? err)));
+  }, [projectId]);
+
+  const fig = project?.figures.find((f) => f.id === figureId);
   const variant: FigureVariant | undefined = useMemo(() => {
     if (!fig) return undefined;
     if (variantId) return fig.variants.find((v) => v.id === variantId) ?? fig.variants[0];
     return fig.variants[0];
   }, [fig, variantId]);
 
+  const propsState = useProjectProps(projectId);
+
   useEffect(() => {
     if (!fig) return;
     setFigureComponent(null);
-    loadFigureComponent(fig.moduleKey).then((Component) => setFigureComponent(() => Component), (err) => {
+    loadFigureComponent(projectId, fig.moduleKey).then((Component) => setFigureComponent(() => Component), (err) => {
       // eslint-disable-next-line no-console
       console.error(err);
       setFigureComponent(() => () => (
@@ -60,10 +74,21 @@ export function FigureView() {
         </div>
       ));
     });
-  }, [fig?.moduleKey]);
+  }, [projectId, fig?.moduleKey]);
 
   const surfaceRef = useRef<HTMLDivElement | null>(null);
   const surfaceSize = useElementSize(surfaceRef);
+
+  if (projectError) {
+    return (
+      <div className="page">
+        <div className="empty">
+          <div className="emptyTitle">Failed to load project</div>
+          <div className="emptyBody mono">{projectError}</div>
+        </div>
+      </div>
+    );
+  }
 
   if (!fig || !variant) {
     return (
@@ -71,15 +96,23 @@ export function FigureView() {
         <div className="empty">
           <div className="emptyTitle">Figure not found</div>
           <div className="emptyBody">
-            Go back to <Link to="/">home</Link>.
+            Go back to <Link to={`/project/${encodeURIComponent(projectId)}`}>project</Link>.
           </div>
         </div>
       </div>
     );
   }
 
+  const controls: FigureControl[] = (() => {
+    const explicit = [...(fig.controls ?? []), ...(variant.controls ?? [])];
+    if (explicit.length) return explicit;
+    return inferControlsFromProps(variant.props ?? {});
+  })();
+
   const size = resolveSize(variant.size ?? fig.size);
   const background = variant.background ?? 'white';
+  const variantOverrides = propsState.getVariantOverrides(fig.id, variant.id);
+  const effectiveVariantProps = { ...(variant.props ?? {}), ...variantOverrides };
 
   const scale = useMemo(() => {
     if (zoom.kind === 'percent') return zoom.value / 100;
@@ -93,7 +126,7 @@ export function FigureView() {
     width: size.width,
     height: size.height,
     background,
-    ...(variant.props as any)
+    ...(effectiveVariantProps as any)
   };
 
   const mmText = size.mm && size.dpi ? `${size.mm.width}×${size.mm.height} mm @ ${size.dpi}dpi` : null;
@@ -113,7 +146,13 @@ export function FigureView() {
             <select
               className="select"
               value={variant.id}
-              onChange={(e) => navigate(`/figure/${encodeURIComponent(fig.id)}/${encodeURIComponent(e.target.value)}`)}
+              onChange={(e) =>
+                navigate(
+                  `/project/${encodeURIComponent(projectId)}/figure/${encodeURIComponent(fig.id)}/${encodeURIComponent(
+                    e.target.value
+                  )}`
+                )
+              }
             >
               {fig.variants.map((v) => (
                 <option key={v.id} value={v.id}>
@@ -152,18 +191,169 @@ export function FigureView() {
             <input type="checkbox" checked={checker} onChange={(e) => setChecker(e.target.checked)} /> Checkerboard
           </label>
 
-          <Link className="btn btnSmall" to={`/render/${encodeURIComponent(fig.id)}/${encodeURIComponent(variant.id)}`} target="_blank">
+          <Link
+            className="btn btnSmall"
+            to={`/render/${encodeURIComponent(projectId)}/${encodeURIComponent(fig.id)}/${encodeURIComponent(variant.id)}`}
+            target="_blank"
+          >
             Render route
           </Link>
         </div>
       </div>
 
-      <div className={`previewSurface ${checker ? 'checker' : ''}`} ref={surfaceRef}>
-        <div className="previewScale" style={{ transform: `scale(${scale})` }}>
-          <div id="figure-root" style={{ width: size.width, height: size.height }}>
-            {FigureComponent ? <FigureComponent {...props} /> : <div className="loading">Loading…</div>}
+      <div className="figureBody">
+        <div className={`previewSurface ${checker ? 'checker' : ''}`} ref={surfaceRef}>
+          <div className="previewScale" style={{ transform: `scale(${scale})` }}>
+            <div id="figure-root" style={{ width: size.width, height: size.height }}>
+              {FigureComponent ? <FigureComponent {...props} /> : <div className="loading">Loading…</div>}
+            </div>
           </div>
         </div>
+
+        <aside className="controlsPanel" aria-label="Controls">
+          <div className="controlsHeader">
+            <div className="controlsTitle">Controls</div>
+            <div className="controlsActions">
+              <button
+                className="btn btnSmall"
+                onClick={() => propsState.resetVariantOverrides(fig.id, variant.id)}
+                title="Clear saved overrides for this variant"
+              >
+                Reset
+              </button>
+              <button
+                className="btn btnSmall"
+                onClick={async () => {
+                  const json = JSON.stringify(variantOverrides, null, 2);
+                  try {
+                    await navigator.clipboard.writeText(json);
+                  } catch {
+                    window.prompt('Copy overrides JSON:', json);
+                  }
+                }}
+                title="Copy overrides JSON"
+              >
+                Copy JSON
+              </button>
+            </div>
+          </div>
+
+          <div className="controlsStatus">
+            {propsState.readOnly ? (
+              <span className="statusMuted" title={propsState.loadError ?? undefined}>
+                Saving disabled
+              </span>
+            ) : propsState.saveStatus === 'saving' ? (
+              <span className="statusMuted">Saving…</span>
+            ) : propsState.saveStatus === 'saved' ? (
+              <span className="statusOk">Saved</span>
+            ) : propsState.saveStatus === 'error' ? (
+              <span className="statusErr">Save failed</span>
+            ) : (
+              <span className="statusMuted">Edits auto-save</span>
+            )}
+            {propsState.saveError ? <div className="statusErr mono">{propsState.saveError}</div> : null}
+          </div>
+
+          {controls.length ? (
+            <div className="controlsGrid">
+              {controls.map((c, idx) => {
+                const key = c.key;
+                const label = c.label ?? key;
+                const currentValue = (effectiveVariantProps as any)[key];
+
+                if (c.kind === 'text') {
+                  const value = typeof currentValue === 'string' ? currentValue : currentValue == null ? '' : String(currentValue);
+                  return (
+                    <label key={`${key}:${idx}`} className="control">
+                      <div className="controlLabel">{label}</div>
+                      {c.multiline ? (
+                        <textarea
+                          className="textarea"
+                          rows={5}
+                          placeholder={c.placeholder}
+                          value={value}
+                          onChange={(e) => propsState.setVariantOverride(fig.id, variant.id, key, e.target.value)}
+                        />
+                      ) : (
+                        <input
+                          className="input"
+                          type="text"
+                          placeholder={c.placeholder}
+                          value={value}
+                          onChange={(e) => propsState.setVariantOverride(fig.id, variant.id, key, e.target.value)}
+                        />
+                      )}
+                    </label>
+                  );
+                }
+
+                if (c.kind === 'number') {
+                  const value = typeof currentValue === 'number' && Number.isFinite(currentValue) ? String(currentValue) : '';
+                  return (
+                    <label key={`${key}:${idx}`} className="control">
+                      <div className="controlLabel">{label}</div>
+                      <input
+                        className="input"
+                        type="number"
+                        min={c.min}
+                        max={c.max}
+                        step={c.step}
+                        value={value}
+                        onChange={(e) => {
+                          const s = e.target.value;
+                          if (!s) propsState.setVariantOverride(fig.id, variant.id, key, undefined);
+                          else {
+                            const n = Number(s);
+                            propsState.setVariantOverride(fig.id, variant.id, key, Number.isFinite(n) ? n : undefined);
+                          }
+                        }}
+                      />
+                    </label>
+                  );
+                }
+
+                if (c.kind === 'boolean') {
+                  const checked = Boolean(currentValue);
+                  return (
+                    <label key={`${key}:${idx}`} className="control controlCheckbox">
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={(e) => propsState.setVariantOverride(fig.id, variant.id, key, e.target.checked)}
+                      />
+                      <div className="controlLabel">{label}</div>
+                    </label>
+                  );
+                }
+
+                if (c.kind === 'select') {
+                  const value = typeof currentValue === 'string' ? currentValue : currentValue == null ? '' : String(currentValue);
+                  return (
+                    <label key={`${key}:${idx}`} className="control">
+                      <div className="controlLabel">{label}</div>
+                      <select
+                        className="select"
+                        value={value}
+                        onChange={(e) => propsState.setVariantOverride(fig.id, variant.id, key, e.target.value)}
+                      >
+                        {c.options.map((opt) => (
+                          <option key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  );
+                }
+
+                return null;
+              })}
+            </div>
+          ) : (
+            <div className="controlsEmpty">No editable props found.</div>
+          )}
+        </aside>
       </div>
     </div>
   );

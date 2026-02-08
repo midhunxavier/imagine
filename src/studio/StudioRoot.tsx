@@ -6,10 +6,9 @@ export function StudioRoot() {
   return (
     <HashRouter>
       <Routes>
-        <Route path="/render/:figureId/:variantId?" element={<RenderView />} />
+        <Route path="/render/:projectId/:figureId/:variantId?" element={<RenderView />} />
         <Route path="/*" element={<StudioApp />} />
       </Routes>
     </HashRouter>
   );
 }
-

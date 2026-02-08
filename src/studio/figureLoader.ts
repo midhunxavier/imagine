@@ -2,24 +2,29 @@ import type { ComponentType } from 'react';
 
 type FigureModule = { default: ComponentType<any> };
 
-const modules = import.meta.glob<FigureModule>('../figures/*.tsx');
+const modules = import.meta.glob<FigureModule>('../../projects/*/figures/*.tsx');
 
-const byKey: Record<string, () => Promise<FigureModule>> = Object.fromEntries(
-  Object.entries(modules).map(([path, loader]) => {
-    const file = path.split('/').at(-1) ?? path;
-    const key = file.replace(/\.tsx$/, '');
-    return [key, loader];
-  })
-);
-
-export function availableFigureModuleKeys(): string[] {
-  return Object.keys(byKey).sort();
+const byProject: Record<string, Record<string, () => Promise<FigureModule>>> = {};
+for (const [modulePath, loader] of Object.entries(modules)) {
+  const match = modulePath.match(/projects\/([^/]+)\/figures\/([^/]+)\.tsx$/);
+  if (!match) continue;
+  const projectId = match[1]!;
+  const moduleKey = match[2]!;
+  byProject[projectId] = byProject[projectId] ?? {};
+  byProject[projectId]![moduleKey] = loader;
 }
 
-export async function loadFigureComponent(moduleKey: string): Promise<ComponentType<any>> {
-  const loader = byKey[moduleKey];
-  if (!loader) throw new Error(`Unknown moduleKey "${moduleKey}". Available: ${availableFigureModuleKeys().join(', ')}`);
+export function availableFigureModuleKeys(projectId: string): string[] {
+  return Object.keys(byProject[projectId] ?? {}).sort();
+}
+
+export async function loadFigureComponent(projectId: string, moduleKey: string): Promise<ComponentType<any>> {
+  const loader = byProject[projectId]?.[moduleKey];
+  if (!loader) {
+    throw new Error(
+      `Unknown moduleKey "${moduleKey}" for project "${projectId}". Available: ${availableFigureModuleKeys(projectId).join(', ')}`
+    );
+  }
   const mod = await loader();
   return mod.default;
 }
-

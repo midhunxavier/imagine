@@ -1,12 +1,12 @@
-import { Figure } from '../framework/Figure';
-import type { FigureComponentBaseProps } from '../framework/types';
-import { theme } from '../framework/theme';
-import type { Point } from '../framework/charts/scales';
-import { extentX, extentY, linearScale } from '../framework/charts/scales';
-import { AxisBottom, AxisLeft } from '../framework/charts/Axes';
-import { GridLines } from '../framework/charts/GridLines';
-import { LineSeries, ScatterSeries } from '../framework/charts/Series';
-import { Legend } from '../framework/charts/Legend';
+import { Figure } from '@/framework/Figure';
+import type { FigureComponentBaseProps } from '@/framework/types';
+import { theme } from '@/framework/theme';
+import type { Point } from '@/framework/charts/scales';
+import { extentX, extentY, linearScale } from '@/framework/charts/scales';
+import { AxisBottom, AxisLeft } from '@/framework/charts/Axes';
+import { GridLines } from '@/framework/charts/GridLines';
+import { LineSeries, ScatterSeries } from '@/framework/charts/Series';
+import { Legend } from '@/framework/charts/Legend';
 
 const dataA: Point[] = [
   { x: 0, y: 0.2 },
@@ -26,7 +26,22 @@ const dataB: Point[] = [
   { x: 5, y: 2.15 }
 ];
 
-export default function LineChartFigure({ width, height, background }: FigureComponentBaseProps) {
+export default function LineChartFigure({
+  width,
+  height,
+  background,
+  title = 'Example: signal over time',
+  xLabel = 'Time (a.u.)',
+  yLabel = 'Response',
+  seriesALabel = 'Condition A',
+  seriesBLabel = 'Condition B'
+}: FigureComponentBaseProps & {
+  title?: string;
+  xLabel?: string;
+  yLabel?: string;
+  seriesALabel?: string;
+  seriesBLabel?: string;
+}) {
   const margin = { left: 70, top: 40, right: 20, bottom: 60 };
   const plotW = width - margin.left - margin.right;
   const plotH = height - margin.top - margin.bottom;
@@ -37,7 +52,7 @@ export default function LineChartFigure({ width, height, background }: FigureCom
   return (
     <Figure width={width} height={height} background={background} title="Line chart">
       <text x={margin.left} y={22} fontSize={14} fill={theme.colors.text} fontWeight={700}>
-        Example: signal over time
+        {title}
       </text>
 
       <g transform={`translate(${margin.left}, ${margin.top})`}>
@@ -49,18 +64,17 @@ export default function LineChartFigure({ width, height, background }: FigureCom
         <ScatterSeries xScale={xScale} yScale={yScale} data={dataB} fill={theme.colors.teal} />
       </g>
 
-      <AxisLeft x={margin.left} y={margin.top} scale={yScale} label="Response" />
-      <AxisBottom x={margin.left} y={height - margin.bottom} scale={xScale} label="Time (a.u.)" />
+      <AxisLeft x={margin.left} y={margin.top} scale={yScale} label={yLabel} />
+      <AxisBottom x={margin.left} y={height - margin.bottom} scale={xScale} label={xLabel} />
 
       <Legend
         x={width - 210}
         y={48}
         items={[
-          { label: 'Condition A', color: theme.colors.blue },
-          { label: 'Condition B', color: theme.colors.teal }
+          { label: seriesALabel, color: theme.colors.blue },
+          { label: seriesBLabel, color: theme.colors.teal }
         ]}
       />
     </Figure>
   );
 }
-

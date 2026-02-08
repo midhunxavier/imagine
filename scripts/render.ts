@@ -2,15 +2,24 @@ import path from 'node:path';
 import fs from 'node:fs/promises';
 import { spawn } from 'node:child_process';
 import { chromium } from 'playwright';
-import { figures as allFigures } from '../src/figures/manifest';
-import type { FigureManifestItem, FigureVariant } from '../src/figures/manifest';
+import type { FigureManifestItem, FigureVariant } from '../src/core/manifest';
 import { resolveSize } from '../src/framework/sizing';
 import { startStaticServer } from './server';
+import { emptyPropsFile, validatePropsFileV1 } from '../src/core/manifest';
+import { loadProjectDefinition } from './projects';
 
 type Mode = 'build' | 'dev';
 
 function platformNpmBin() {
   return process.platform === 'win32' ? 'npm.cmd' : 'npm';
+}
+
+function base64UrlEncode(input: string): string {
+  return Buffer.from(input, 'utf8')
+    .toString('base64')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/g, '');
 }
 
 function run(cmd: string, args: string[], opts: { cwd?: string } = {}) {
@@ -77,12 +86,16 @@ Usage:
   npm run render -- [options]
 
 Options:
+  --project <id>       Project id. Defaults to "example".
   --fig <id>           Limit to figure id(s). Repeatable or comma-separated.
   --variant <id>       Limit to variant id(s). Repeatable or comma-separated.
   --formats png,svg    Defaults to "png,svg".
-  --out <dir>          Defaults to "out".
+  --out <dir>          Defaults to "out/<projectId>".
   --mode build|dev     Defaults to "build".
   --url <url>          Dev server URL (dev mode). Defaults to http://localhost:5173
+  --props-file <path>  Defaults to "projects/<projectId>/props.json" (if exists).
+  --no-props           Ignore props overrides file.
+  --no-manifest        Do not write out/manifest.json.
   --help
 `.trim();
   // eslint-disable-next-line no-console
@@ -122,12 +135,16 @@ async function main() {
     return;
   }
 
+  const projectId = getFlag('--project') ?? 'example';
   const figureIds = collectFlagValues('--fig');
   const variantIds = collectFlagValues('--variant');
   const formats = new Set(splitList(getFlag('--formats') ?? 'png,svg').map((s) => s.toLowerCase()));
-  const outDir = path.resolve(process.cwd(), getFlag('--out') ?? 'out');
+  const outDir = path.resolve(process.cwd(), getFlag('--out') ?? path.join('out', projectId));
   const mode = ((getFlag('--mode') ?? 'build') as Mode) satisfies Mode;
   const url = getFlag('--url') ?? 'http://localhost:5173';
+  const noProps = hasFlag('--no-props');
+  const noManifest = hasFlag('--no-manifest');
+  const propsFilePath = getFlag('--props-file') ?? path.join('projects', projectId, 'props.json');
 
   if (mode !== 'build' && mode !== 'dev') {
     throw new Error(`Invalid --mode: ${mode}`);
@@ -137,12 +154,20 @@ async function main() {
     throw new Error(`Invalid --formats: ${[...formats].join(',')}`);
   }
 
-  const targets = selectTargets({ figures: allFigures, figureIds, variantIds });
+  const project = await loadProjectDefinition(projectId);
+  const targets = selectTargets({ figures: project.figures, figureIds, variantIds });
   if (!targets.length) {
     throw new Error(`No render targets matched. --fig=${figureIds.join(',')} --variant=${variantIds.join(',')}`);
   }
 
   await fs.mkdir(outDir, { recursive: true });
+
+  const propsFile = noProps
+    ? emptyPropsFile()
+    : await fs
+        .readFile(propsFilePath, 'utf8')
+        .then((raw) => validatePropsFileV1(JSON.parse(raw)))
+        .catch(() => emptyPropsFile());
 
   let baseUrl = url;
   let closeServer: (() => Promise<void>) | null = null;
@@ -168,7 +193,12 @@ async function main() {
       const effectiveSize = t.variant.size ?? t.figure.size;
       const resolved = resolveSize(effectiveSize);
       const bg = t.variant.background ?? 'white';
-      const route = `/#/render/${encodeURIComponent(t.figure.id)}/${encodeURIComponent(t.variant.id)}`;
+      const overrides = (propsFile.overrides[t.figure.id]?.[t.variant.id] ?? {}) as Record<string, unknown>;
+      const propsParam =
+        overrides && typeof overrides === 'object' && Object.keys(overrides).length
+          ? `?props=${encodeURIComponent(base64UrlEncode(JSON.stringify(overrides)))}`
+          : '';
+      const route = `/#/render/${encodeURIComponent(projectId)}/${encodeURIComponent(t.figure.id)}/${encodeURIComponent(t.variant.id)}${propsParam}`;
       const pageUrl = `${baseUrl}${route}`;
 
       // eslint-disable-next-line no-console
@@ -229,23 +259,26 @@ async function main() {
   }
 
   const manifestPath = path.join(outDir, 'manifest.json');
-  await fs.writeFile(
-    manifestPath,
-    JSON.stringify(
-      {
-        generatedAt: new Date().toISOString(),
-        mode,
-        baseUrl,
-        results
-      },
-      null,
-      2
-    ) + '\n',
-    'utf8'
-  );
+  if (!noManifest) {
+    await fs.writeFile(
+      manifestPath,
+      JSON.stringify(
+        {
+          generatedAt: new Date().toISOString(),
+          projectId,
+          mode,
+          baseUrl,
+          results
+        },
+        null,
+        2
+      ) + '\n',
+      'utf8'
+    );
 
-  // eslint-disable-next-line no-console
-  console.log(`Wrote ${manifestPath}`);
+    // eslint-disable-next-line no-console
+    console.log(`Wrote ${manifestPath}`);
+  }
 }
 
 main().catch((err) => {
