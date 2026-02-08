@@ -11,6 +11,8 @@ import { BarSeries } from './series/BarSeries';
 import { BoxPlot } from './series/BoxPlot';
 import { ViolinPlot } from './series/ViolinPlot';
 import { Heatmap, type HeatmapCell } from './series/Heatmap';
+import { Histogram } from './series/Histogram';
+import { DensityPlot } from './series/DensityPlot';
 import { XAxis, YAxis } from './axes/Axes';
 import { Title } from './decorations/Title';
 import { Figure } from '@/framework/Figure';
@@ -227,3 +229,88 @@ export function HeatmapChart(props: FigureComponentBaseProps & {
     </Figure>
   );
 }
+
+/**
+ * HistogramChart - Distribution visualization with binning
+ * 
+ * @example
+ * // Simplest usage - auto-bins the data
+ * <HistogramChart data={measurements} x="value" />
+ * 
+ * @example
+ * // Custom binning with density overlay
+ * <HistogramChart
+ *   data={data}
+ *   x="measurement"
+ *   bins={20}
+ *   showDensity
+ *   normalize
+ * />
+ */
+export function HistogramChart<T extends Record<string, any>>(props: Omit<ChartProps<T>, 'children'> & {
+  bins?: number | number[] | 'auto' | 'sturges' | 'fd';
+  normalize?: boolean;
+  showDensity?: boolean;
+  densityBandwidth?: number | 'auto';
+  barGap?: number;
+}) {
+  const { bins, normalize, showDensity, densityBandwidth, barGap, showGrid, ...chartProps } = props;
+
+  return (
+    <Chart {...chartProps} showGrid={showGrid}>
+      {props.title && <Title text={props.title} />}
+      <YAxis showGrid={showGrid === true || showGrid === 'y'} />
+      <XAxis showGrid={showGrid === true || showGrid === 'x'} />
+      <Histogram
+        bins={bins}
+        normalize={normalize}
+        showDensity={showDensity}
+        densityBandwidth={densityBandwidth}
+        barGap={barGap}
+      />
+    </Chart>
+  );
+}
+
+/**
+ * DensityPlotChart - Kernel density estimation visualization
+ * 
+ * @example
+ * // Simple density plot
+ * <DensityPlotChart data={measurements} x="value" />
+ * 
+ * @example
+ * // Ridge plot (grouped density plots)
+ * <DensityPlotChart
+ *   data={data}
+ *   x="category"
+ *   y="measurement"
+ *   ridge
+ *   bandwidth="auto"
+ * />
+ */
+export function DensityPlotChart<T extends Record<string, any>>(props: Omit<ChartProps<T>, 'children'> & {
+  bandwidth?: number | 'auto';
+  numPoints?: number;
+  filled?: boolean;
+  ridge?: boolean;
+  ridgeOverlap?: number;
+}) {
+  const { bandwidth, numPoints, filled, ridge, ridgeOverlap, showGrid, ...chartProps } = props;
+
+  return (
+    <Chart {...chartProps} showGrid={showGrid}>
+      {props.title && <Title text={props.title} />}
+      <YAxis showGrid={showGrid === true || showGrid === 'y'} />
+      <XAxis showGrid={showGrid === true || showGrid === 'x'} />
+      <DensityPlot
+        bandwidth={bandwidth}
+        numPoints={numPoints}
+        filled={filled}
+        ridge={ridge}
+        ridgeOverlap={ridgeOverlap}
+      />
+    </Chart>
+  );
+}
+

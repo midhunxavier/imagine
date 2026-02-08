@@ -226,6 +226,76 @@ export const figures: FigureManifestItem[] = [
         props: {}
       }
     ]
+  },
+  {
+    id: 'histogram-demo',
+    title: 'Histogram (v2)',
+    moduleKey: 'histogram-demo',
+    size: { unit: 'px', width: 800, height: 500 },
+    variants: [
+      {
+        id: 'default',
+        title: 'Auto-Binning',
+        background: 'white',
+        props: { variant: 'default' }
+      },
+      {
+        id: 'with-density',
+        title: 'With Density Overlay',
+        background: 'white',
+        props: { variant: 'with-density' }
+      },
+      {
+        id: 'grouped',
+        title: 'Grouped',
+        background: 'white',
+        props: { variant: 'grouped' }
+      },
+      {
+        id: 'custom-bins',
+        title: 'Custom Binning',
+        background: 'white',
+        props: { variant: 'custom-bins' }
+      }
+    ]
+  },
+  {
+    id: 'densityplot-demo',
+    title: 'Density Plot (v2)',
+    moduleKey: 'densityplot-demo',
+    size: { unit: 'px', width: 800, height: 500 },
+    variants: [
+      {
+        id: 'default',
+        title: 'Simple',
+        background: 'white',
+        props: { variant: 'default' }
+      },
+      {
+        id: 'overlapping',
+        title: 'Overlapping Distributions',
+        background: 'white',
+        props: { variant: 'overlapping' }
+      },
+      {
+        id: 'ridge',
+        title: 'Ridge Plot',
+        background: 'white',
+        props: { variant: 'ridge' }
+      },
+      {
+        id: 'bandwidth',
+        title: 'Bandwidth Comparison',
+        background: 'white',
+        props: { variant: 'bandwidth' }
+      },
+      {
+        id: 'outline',
+        title: 'Outline Only',
+        background: 'white',
+        props: { variant: 'outline' }
+      }
+    ]
   }
 ];
 

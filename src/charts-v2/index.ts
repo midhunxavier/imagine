@@ -7,7 +7,7 @@ export { Chart } from './Chart';
 export { ChartProvider, useChartContext } from './ChartContext';
 
 // Simple all-in-one charts
-export { LineChart, ScatterPlot, BarChart, BoxPlotChart, ViolinPlotChart, HeatmapChart } from './SimpleCharts';
+export { LineChart, ScatterPlot, BarChart, BoxPlotChart, ViolinPlotChart, HeatmapChart, HistogramChart, DensityPlotChart } from './SimpleCharts';
 
 // Series components
 export { LineSeries } from './series/LineSeries';
@@ -17,6 +17,8 @@ export { BoxPlot } from './series/BoxPlot';
 export { ViolinPlot } from './series/ViolinPlot';
 export { Heatmap } from './series/Heatmap';
 export type { HeatmapCell } from './series/Heatmap';
+export { Histogram } from './series/Histogram';
+export { DensityPlot } from './series/DensityPlot';
 
 // Axes
 export { XAxis, YAxis } from './axes/Axes';
@@ -36,5 +38,7 @@ export type { ScatterSeriesProps } from './series/ScatterSeries';
 export type { BarSeriesProps } from './series/BarSeries';
 export type { BoxPlotProps } from './series/BoxPlot';
 export type { ViolinPlotProps } from './series/ViolinPlot';
+export type { HistogramProps } from './series/Histogram';
+export type { DensityPlotProps } from './series/DensityPlot';
 export type { AxisProps } from './axes/Axes';
 export type { TitleProps } from './decorations/Title';
