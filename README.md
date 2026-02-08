@@ -2,6 +2,37 @@
 
 React → scientific figures (PNG + SVG) with a live Studio and a Playwright renderer.
 
+**🎉 NEW: v2 Enhanced API** with smart auto-inference, 8 publication themes, and 70% less boilerplate!
+
+## 📚 Documentation
+
+- **[Implementation Guide](./IMPLEMENTATION.md)** - v2 API usage and examples
+- **[Master Plan](./docs/MASTER_PLAN.md)** - Complete 48-week enhancement roadmap  
+- **[Progress Tracker](./docs/PROGRESS.md)** - Current development status
+- **[Quick Reference](./docs/QUICK_REFERENCE.md)** - Developer quick guide
+- **[Analysis](./ANALYSIS.md)** - Gap analysis and competitive landscape
+
+## ✨ v2 Highlights
+
+### Smart Auto-Inference
+```tsx
+import { LineChart } from '@/charts-v2';
+
+// Auto-infers x/y fields, scales, margins - just works!
+<LineChart data={data} width={800} height={600} />
+
+// Or customize
+<LineChart data={data} x="time" y="value" theme="nature" showGrid />
+```
+
+### 8 Publication Themes
+`nature` • `science` • `cell` • `colorblind` • `default` • `minimal` • `print` • `dark`
+
+### 70% Less Boilerplate
+**Before (v1):** 15+ lines of setup → **After (v2):** 1 line!
+
+---
+
 ## Quickstart
 
 ```bash
