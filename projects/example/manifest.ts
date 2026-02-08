@@ -120,6 +120,42 @@ export const figures: FigureManifestItem[] = [
         controls: [{ kind: 'text', key: 'tex', label: 'LaTeX', multiline: true }]
       }
     ]
+  },
+  {
+    id: 'ai-agent-architecture',
+    title: 'AI Agent Architecture',
+    moduleKey: 'ai-agent-architecture',
+    size: { unit: 'px', width: 1100, height: 700 },
+    variants: [
+      {
+        id: 'default',
+        title: 'Default',
+        background: 'white',
+        props: {
+          title: 'AI Agent Architecture',
+          subtitle: 'Multi-agent system with tool use and memory',
+          userInput: 'User Input',
+          orchestrator: 'Orchestrator',
+          memory: 'Memory / Context',
+          llm: 'LLM / Model',
+          tools1: 'Tool A',
+          tools2: 'Tool B',
+          tools3: 'Tool C',
+          output: 'Response',
+          notes: 'Components communicate via function calling'
+        },
+        controls: [
+          { kind: 'text', key: 'userInput', label: 'User Input Label' },
+          { kind: 'text', key: 'orchestrator', label: 'Orchestrator Label' },
+          { kind: 'text', key: 'llm', label: 'LLM Label' },
+          { kind: 'text', key: 'memory', label: 'Memory Label' },
+          { kind: 'text', key: 'tools1', label: 'Tool 1 Label' },
+          { kind: 'text', key: 'tools2', label: 'Tool 2 Label' },
+          { kind: 'text', key: 'tools3', label: 'Tool 3 Label' },
+          { kind: 'text', key: 'output', label: 'Output Label' }
+        ]
+      }
+    ]
   }
 ];
 
