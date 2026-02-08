@@ -212,6 +212,20 @@ export const figures: FigureManifestItem[] = [
         props: {}
       }
     ]
+  },
+  {
+    id: 'heatmap-demo',
+    title: 'Heatmap (v2)',
+    moduleKey: 'heatmap-demo',
+    size: { unit: 'px', width: 600, height: 600 },
+    variants: [
+      {
+        id: 'default',
+        title: 'Default',
+        background: 'white',
+        props: {}
+      }
+    ]
   }
 ];
 

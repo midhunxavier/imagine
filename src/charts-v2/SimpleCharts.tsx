@@ -10,8 +10,12 @@ import { ScatterSeries } from './series/ScatterSeries';
 import { BarSeries } from './series/BarSeries';
 import { BoxPlot } from './series/BoxPlot';
 import { ViolinPlot } from './series/ViolinPlot';
+import { Heatmap, type HeatmapCell } from './series/Heatmap';
 import { XAxis, YAxis } from './axes/Axes';
 import { Title } from './decorations/Title';
+import { Figure } from '@/framework/Figure';
+import type { FigureComponentBaseProps } from '@/framework/types';
+import type { ColorScaleType } from './utils/colorScales';
 
 /**
  * LineChart - Simple line chart with auto-inference
@@ -162,3 +166,64 @@ export function ViolinPlotChart<T extends Record<string, any>>(props: Omit<Chart
   );
 }
 
+
+/**
+ * HeatmapChart - 2D matrix visualization
+ */
+export function HeatmapChart(props: FigureComponentBaseProps & {
+  data?: HeatmapCell[];
+  matrix?: number[][];
+  rowLabels?: string[];
+  colLabels?: string[];
+  colorScale?: ColorScaleType | string[];
+  domain?: [number, number] | 'auto';
+  cellSize?: number;
+  cellGap?: number;
+  showValues?: boolean;
+  valueFormat?: (value: number) => string;
+  title?: string;
+  subtitle?: string;
+  theme?: any;
+}) {
+  const {
+    data,
+    matrix,
+    rowLabels,
+    colLabels,
+    colorScale = 'viridis',
+    domain = 'auto',
+    cellSize = 30,
+    cellGap = 2,
+    showValues = false,
+    valueFormat,
+    title,
+    subtitle,
+    theme = 'default',
+    ...figureProps
+  } = props;
+
+  return (
+    <Figure {...figureProps} title={title}>
+      <Chart
+        data={data || []}
+        width={figureProps.width}
+        height={figureProps.height}
+        theme={theme}
+      >
+        {title && <Title text={title} subtitle={subtitle} />}
+        <Heatmap
+          data={data}
+          matrix={matrix}
+          rowLabels={rowLabels}
+          colLabels={colLabels}
+          colorScale={colorScale}
+          domain={domain}
+          cellSize={cellSize}
+          cellGap={cellGap}
+          showValues={showValues}
+          valueFormat={valueFormat}
+        />
+      </Chart>
+    </Figure>
+  );
+}
