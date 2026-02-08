@@ -184,6 +184,34 @@ export const figures: FigureManifestItem[] = [
         props: {}
       }
     ]
+  },
+  {
+    id: 'boxplot-demo',
+    title: 'Box Plot (v2)',
+    moduleKey: 'boxplot-demo',
+    size: { unit: 'px', width: 800, height: 500 },
+    variants: [
+      {
+        id: 'default',
+        title: 'Default',
+        background: 'white',
+        props: {}
+      }
+    ]
+  },
+  {
+    id: 'violinplot-demo',
+    title: 'Violin Plot (v2)',
+    moduleKey: 'violinplot-demo',
+    size: { unit: 'px', width: 800, height: 500 },
+    variants: [
+      {
+        id: 'default',
+        title: 'Default',
+        background: 'white',
+        props: {}
+      }
+    ]
   }
 ];
 
