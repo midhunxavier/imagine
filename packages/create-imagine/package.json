@@ -1,0 +1,19 @@
+{
+  "name": "create-imagine",
+  "version": "0.1.1",
+  "description": "Scaffold a new Imagine project (React → scientific figures).",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "create-imagine": "bin/create-imagine.js"
+  },
+  "files": [
+    "bin",
+    "templates",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -72,20 +72,6 @@ When you edit figure text in Studio, it saves overrides into:
 
 ## Create a new project
 
-To scaffold a fresh project folder:
-
-```bash
-npx create-imagine@latest my-figures
-```
-
-Optional: install the Imagine best-practices agent skill:
-
-```bash
-npx skills add https://github.com/midhunxavier/imagine-skills --skill imagine-best-practices --agent codex
-```
-
-Or inside this repo:
-
 1. Copy `projects/example/` to `projects/<your-id>/`
 2. Update `projects/<your-id>/project.ts` and `projects/<your-id>/manifest.ts`
 3. Restart `npm run dev` (project discovery is build-time)
