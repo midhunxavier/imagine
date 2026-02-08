@@ -156,6 +156,34 @@ export const figures: FigureManifestItem[] = [
         ]
       }
     ]
+  },
+  {
+    id: 'simple-line-chart',
+    title: 'Simple Line Chart (v2)',
+    moduleKey: 'simple-line-chart',
+    size: { unit: 'px', width: 800, height: 500 },
+    variants: [
+      {
+        id: 'default',
+        title: 'Default',
+        background: 'white',
+        props: {}
+      }
+    ]
+  },
+  {
+    id: 'simple-bar-chart',
+    title: 'Simple Bar Chart (v2)',
+    moduleKey: 'simple-bar-chart',
+    size: { unit: 'px', width: 700, height: 450 },
+    variants: [
+      {
+        id: 'default',
+        title: 'Default',
+        background: 'white',
+        props: {}
+      }
+    ]
   }
 ];
 
