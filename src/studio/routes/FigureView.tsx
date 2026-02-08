@@ -79,6 +79,19 @@ export function FigureView() {
   const surfaceRef = useRef<HTMLDivElement | null>(null);
   const surfaceSize = useElementSize(surfaceRef);
 
+  const size = useMemo(() => {
+    if (!fig || !variant) return { width: 100, height: 100, source: { unit: 'px' as const, width: 100, height: 100 } };
+    return resolveSize(variant.size ?? fig.size);
+  }, [fig, variant]);
+
+  const scale = useMemo(() => {
+    if (zoom.kind === 'percent') return zoom.value / 100;
+    const pad = 24;
+    const w = Math.max(1, surfaceSize.width - pad * 2);
+    const h = Math.max(1, surfaceSize.height - pad * 2);
+    return Math.max(0.05, Math.min(8, Math.min(w / size.width, h / size.height)));
+  }, [zoom, surfaceSize.width, surfaceSize.height, size.width, size.height]);
+
   if (projectError) {
     return (
       <div className="page">
@@ -109,18 +122,10 @@ export function FigureView() {
     return inferControlsFromProps(variant.props ?? {});
   })();
 
-  const size = resolveSize(variant.size ?? fig.size);
+  // const size = ... (already defined above)
   const background = variant.background ?? 'white';
   const variantOverrides = propsState.getVariantOverrides(fig.id, variant.id);
   const effectiveVariantProps = { ...(variant.props ?? {}), ...variantOverrides };
-
-  const scale = useMemo(() => {
-    if (zoom.kind === 'percent') return zoom.value / 100;
-    const pad = 24;
-    const w = Math.max(1, surfaceSize.width - pad * 2);
-    const h = Math.max(1, surfaceSize.height - pad * 2);
-    return Math.max(0.05, Math.min(8, Math.min(w / size.width, h / size.height)));
-  }, [zoom, surfaceSize.width, surfaceSize.height, size.width, size.height]);
 
   const props = {
     width: size.width,

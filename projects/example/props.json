@@ -1,4 +1,10 @@
 {
   "version": 1,
-  "overrides": {}
+  "overrides": {
+    "pipeline-diagram": {
+      "default": {
+        "step1": "Ingest"
+      }
+    }
+  }
 }
