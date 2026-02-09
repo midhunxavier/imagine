@@ -2,7 +2,7 @@
  * Smart Chart Context - provides data analysis and scales to children
  */
 
-import { createContext, useContext, useMemo, type ReactNode } from 'react';
+import { createContext, useContext, useMemo, useState, useCallback, type ReactNode } from 'react';
 import type { DataTypeStats, FieldInfo } from '@/core/data-types';
 import { analyzeData, selectDefaultFields } from '@/core/data-types';
 import type { AnyScale, ScaleConfig } from '@/core/scales-v2';
@@ -11,6 +11,14 @@ import type { Margin } from '@/core/layout';
 import { computeMargins, computePlotDimensions } from '@/core/layout';
 import type { Theme } from '@/core/theme-v2';
 import { defaultTheme } from '@/core/theme-v2';
+
+export interface SeriesInfo {
+  id: string;
+  label: string;
+  color: string;
+  shape?: 'line' | 'scatter' | 'bar' | 'area';
+  visible?: boolean;
+}
 
 export interface ChartContextValue {
   // Data
@@ -42,8 +50,14 @@ export interface ChartContextValue {
   // Theme
   theme: Theme;
 
+  // Series registration for legend
+  series: SeriesInfo[];
+  registerSeries: (series: SeriesInfo) => void;
+  unregisterSeries: (id: string) => void;
+
   // Helpers
   getColor: (index: number) => string;
+  getSeriesColor: (label: string) => string;
 }
 
 const ChartContext = createContext<ChartContextValue | null>(null);
@@ -110,6 +124,26 @@ export function ChartProvider<T extends Record<string, any>>({
   legendPosition,
   children
 }: ChartProviderProps<T>) {
+  // Series registration state
+  const [series, setSeries] = useState<SeriesInfo[]>([]);
+
+  const registerSeries = useCallback((seriesInfo: SeriesInfo) => {
+    setSeries(prev => {
+      // Check if series already registered
+      const existing = prev.find(s => s.id === seriesInfo.id);
+      if (existing) {
+        // Update existing
+        return prev.map(s => s.id === seriesInfo.id ? seriesInfo : s);
+      }
+      // Add new
+      return [...prev, seriesInfo];
+    });
+  }, []);
+
+  const unregisterSeries = useCallback((id: string) => {
+    setSeries(prev => prev.filter(s => s.id !== id));
+  }, []);
+
   const contextValue = useMemo(() => {
     // Analyze data
     const stats = analyzeData(data);
@@ -176,6 +210,14 @@ export function ChartProvider<T extends Record<string, any>>({
       return theme.colors.palette[index % theme.colors.palette.length];
     };
 
+    const getSeriesColor = (label: string) => {
+      const seriesInfo = series.find(s => s.label === label);
+      if (seriesInfo) return seriesInfo.color;
+      // Fallback to palette based on label hash
+      const hash = label.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+      return theme.colors.palette[hash % theme.colors.palette.length];
+    };
+
     return {
       data,
       stats,
@@ -194,7 +236,11 @@ export function ChartProvider<T extends Record<string, any>>({
       xLabel,
       yLabel,
       theme,
-      getColor
+      series,
+      registerSeries,
+      unregisterSeries,
+      getColor,
+      getSeriesColor
     };
   }, [
     data,
@@ -212,7 +258,10 @@ export function ChartProvider<T extends Record<string, any>>({
     yLabel,
     theme,
     showLegend,
-    legendPosition
+    legendPosition,
+    series,
+    registerSeries,
+    unregisterSeries
   ]);
 
   return <ChartContext.Provider value={contextValue}>{children}</ChartContext.Provider>;

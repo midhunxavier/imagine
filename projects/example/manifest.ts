@@ -296,6 +296,38 @@ export const figures: FigureManifestItem[] = [
         props: { variant: 'outline' }
       }
     ]
+  },
+  {
+    id: 'multi-series-demo',
+    title: 'Multi-Series Charts (v2)',
+    moduleKey: 'multi-series-demo',
+    size: { unit: 'px', width: 900, height: 550 },
+    variants: [
+      {
+        id: 'default',
+        title: 'Multi-Line',
+        background: 'white',
+        props: { variant: 'default' }
+      },
+      {
+        id: 'with-markers',
+        title: 'With Markers',
+        background: 'white',
+        props: { variant: 'with-markers' }
+      },
+      {
+        id: 'area-stack',
+        title: 'Area Series',
+        background: 'white',
+        props: { variant: 'area-stack' }
+      },
+      {
+        id: 'combined',
+        title: 'Combined Types',
+        background: 'white',
+        props: { variant: 'combined' }
+      }
+    ]
   }
 ];
 

@@ -2,6 +2,7 @@
  * Area Series Component
  */
 
+import { useEffect, useMemo } from 'react';
 import { area as d3Area, curveMonotoneX, curveLinear, curveBasis, curveStep } from 'd3-shape';
 import { useChartContext } from '../ChartContext';
 import type { CurveType } from './LineSeries';
@@ -53,6 +54,28 @@ export function AreaSeries({
   const xScale = ctx.xScale;
   const yScale = ctx.yScale;
   const color = fill || ctx.getColor(0);
+
+  // Generate unique ID for this series
+  const seriesId = useMemo(() => {
+    return `area-${label || yField || Math.random().toString(36).substr(2, 9)}`;
+  }, [label, yField]);
+
+  // Register series with context for legend
+  useEffect(() => {
+    if (label) {
+      ctx.registerSeries({
+        id: seriesId,
+        label,
+        color,
+        shape: 'area'
+      });
+    }
+    return () => {
+      if (label) {
+        ctx.unregisterSeries(seriesId);
+      }
+    };
+  }, [seriesId, label, color, ctx]);
 
   if (!xField || !yField || !xScale || !yScale) {
     console.warn('AreaSeries: missing x or y field/scale');

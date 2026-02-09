@@ -2,6 +2,7 @@
  * Enhanced Scatter Series Component
  */
 
+import { useEffect, useMemo } from 'react';
 import { useChartContext } from '../ChartContext';
 
 export interface ScatterSeriesProps {
@@ -44,6 +45,28 @@ export function ScatterSeries({
   const xScale = ctx.xScale;
   const yScale = ctx.yScale;
   const color = fill || ctx.getColor(0);
+
+  // Generate unique ID for this series
+  const seriesId = useMemo(() => {
+    return `scatter-${label || yField || Math.random().toString(36).substr(2, 9)}`;
+  }, [label, yField]);
+
+  // Register series with context for legend
+  useEffect(() => {
+    if (label) {
+      ctx.registerSeries({
+        id: seriesId,
+        label,
+        color,
+        shape: 'scatter'
+      });
+    }
+    return () => {
+      if (label) {
+        ctx.unregisterSeries(seriesId);
+      }
+    };
+  }, [seriesId, label, color, ctx]);
 
   if (!xField || !yField || !xScale || !yScale) {
     console.warn('ScatterSeries: missing x or y field/scale');

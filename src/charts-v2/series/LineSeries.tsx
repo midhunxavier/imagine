@@ -2,6 +2,7 @@
  * Enhanced Line Series Component
  */
 
+import { useEffect, useMemo } from 'react';
 import { line as d3Line, curveMonotoneX, curveLinear, curveBasis, curveStep } from 'd3-shape';
 import type { ScaleLinear, ScaleTime } from 'd3-scale';
 import { useChartContext } from '../ChartContext';
@@ -51,6 +52,28 @@ export function LineSeries({
   const xScale = ctx.xScale;
   const yScale = ctx.yScale;
   const color = stroke || ctx.getColor(0);
+
+  // Generate unique ID for this series
+  const seriesId = useMemo(() => {
+    return `line-${label || yField || Math.random().toString(36).substr(2, 9)}`;
+  }, [label, yField]);
+
+  // Register series with context for legend
+  useEffect(() => {
+    if (label) {
+      ctx.registerSeries({
+        id: seriesId,
+        label,
+        color,
+        shape: 'line'
+      });
+    }
+    return () => {
+      if (label) {
+        ctx.unregisterSeries(seriesId);
+      }
+    };
+  }, [seriesId, label, color, ctx]);
 
   if (!xField || !yField || !xScale || !yScale) {
     console.warn('LineSeries: missing x or y field/scale');
