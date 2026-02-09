@@ -5,6 +5,82 @@ All notable changes to the Imagine v2 project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0-alpha.5] - 2026-02-09
+
+### Phase 5: Engineering/Technical Domain Components
+
+This release adds engineering and technical visualization components for process flows, network analysis, energy flows, and system diagrams, enabling publication-quality figures for engineering documentation and technical presentations.
+
+#### Added
+
+##### Engineering Components
+
+- **Flowchart** - Process flow diagram visualization
+  - Multiple node types (start/end, process, decision, I/O)
+  - Automatic hierarchical layout algorithm
+  - SVG-based shapes (ellipse, rectangle, diamond, parallelogram)
+  - Edge connections with arrow markers
+  - Edge labels for decision branches
+  - Sample flowchart: data processing workflow
+  - ~200 lines of production code
+
+- **NetworkGraph** - Node-link network visualization
+  - Force-directed layout simulation
+  - Node grouping with color coding
+  - Edge weights and labels
+  - Interactive legend for groups
+  - Adjustable node sizes
+  - Sample network: 5-node connected network
+  - ~180 lines of production code
+
+- **SankeyDiagram** - Flow diagram for energy/material flows
+  - Multi-level flow visualization
+  - Automatic column/level calculation
+  - Bezier curve connections
+  - Node values and flow thickness
+  - Color-coded flows
+  - Sample data: energy grid distribution
+  - ~190 lines of production code
+
+- **SystemDiagram** - Block diagrams for systems engineering
+  - Rectangular blocks with input/output labels
+  - Elbow connector paths
+  - Feedback loop support
+  - Component labeling
+  - Sample system: control system with feedback
+  - ~150 lines of production code
+
+##### Engineering Utilities
+
+- **Engineering Module** (`engineering.ts`)
+  - `layoutFlowchart()` - Hierarchical layout algorithm
+  - `sampleFlowcharts` - Sample process flowcharts
+  - `sampleNetworks` - Sample network data
+  - `sampleSankeyData` - Sample Sankey flow data
+  - `sampleSystemDiagrams` - Sample system block diagrams
+  - TypeScript interfaces for all diagram types
+  - ~150 lines of production code
+
+##### Example Figures
+
+- **engineering-demo.tsx** - Engineering visualization showcase
+  - All components grid view
+  - Process flowchart
+  - Network graph
+  - Sankey diagram
+  - System block diagram
+
+#### Metrics
+
+- New Components: 4 (Flowchart, NetworkGraph, SankeyDiagram, SystemDiagram)
+- New Utilities: 1 (engineering.ts)
+- Lines of Code: ~870
+- Example Figures: 1 (5 variants)
+- Build Time: 602ms
+- TypeScript Errors: 0
+
+---
+
 ## [2.0.0-alpha.4] - 2026-02-09
 
 ### Phase 4: Chemistry Domain Components

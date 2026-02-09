@@ -410,6 +410,44 @@ export const figures: FigureManifestItem[] = [
         props: { variant: 'mass-spec' }
       }
     ]
+  },
+  {
+    id: 'engineering-demo',
+    title: 'Engineering Components (v2)',
+    moduleKey: 'engineering-demo',
+    size: { unit: 'px', width: 900, height: 600 },
+    variants: [
+      {
+        id: 'default',
+        title: 'All Components Grid',
+        background: 'white',
+        props: { variant: 'default' }
+      },
+      {
+        id: 'flowchart',
+        title: 'Process Flowchart',
+        background: 'white',
+        props: { variant: 'flowchart' }
+      },
+      {
+        id: 'network',
+        title: 'Network Graph',
+        background: 'white',
+        props: { variant: 'network' }
+      },
+      {
+        id: 'sankey',
+        title: 'Sankey Diagram',
+        background: 'white',
+        props: { variant: 'sankey' }
+      },
+      {
+        id: 'system',
+        title: 'System Block Diagram',
+        background: 'white',
+        props: { variant: 'system' }
+      }
+    ]
   }
 ];
 

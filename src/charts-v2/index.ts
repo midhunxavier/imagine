@@ -38,11 +38,18 @@ export { NMRSpectrum } from './series/NMRSpectrum';
 export { IRSpectrum } from './series/IRSpectrum';
 export { MassSpectrum } from './series/MassSpectrum';
 
+// Engineering components
+export { Flowchart } from './series/Flowchart';
+export { NetworkGraph } from './series/NetworkGraph';
+export { SankeyDiagram } from './series/SankeyDiagram';
+export { SystemDiagram } from './series/SystemDiagram';
+
 // Utilities
 export * from './utils/statistics';
 export * from './utils/colorScales';
 export * from './utils/biology';
 export * from './utils/chemistry';
+export * from './utils/engineering';
 
 // Types
 export type { ChartProps } from './Chart';
@@ -67,3 +74,8 @@ export type { NMRSpectrumProps } from './series/NMRSpectrum';
 export type { IRSpectrumProps } from './series/IRSpectrum';
 export type { MassSpectrumProps } from './series/MassSpectrum';
 export type { NMRSpectrum as NMRSpectrumType, IRSpectrum as IRSpectrumType, MassSpectrum as MassSpectrumType, NMRPeak, IRPeak, MassPeak } from './utils/chemistry';
+export type { FlowchartProps } from './series/Flowchart';
+export type { NetworkGraphProps } from './series/NetworkGraph';
+export type { SankeyDiagramProps } from './series/SankeyDiagram';
+export type { SystemDiagramProps } from './series/SystemDiagram';
+export type { FlowNode, FlowEdge, NetworkNode, NetworkEdge, SankeyNode, SankeyLink, SystemBlock } from './utils/engineering';
