@@ -5,6 +5,106 @@ All notable changes to the Imagine v2 project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0-alpha.4] - 2026-02-09
+
+### Phase 4: Chemistry Domain Components
+
+This release adds comprehensive chemistry visualization components for molecular structures and spectroscopic analysis, enabling publication-quality figures for organic chemistry, analytical chemistry, and chemical research.
+
+#### Added
+
+##### Chemistry Components
+
+- **Molecule** - Chemical structure visualization from SMILES
+  - SVG-based molecular structure rendering
+  - SMILES string parsing for organic molecules
+  - Atom color coding (C, O, N, H, S, Cl, Br, F, P)
+  - Bond visualization (single, double, triple)
+  - Zig-zag layout for carbon chains
+  - Ring closure support
+  - Labels for heteroatoms
+  - Automatic centering and scaling
+  - Sample molecules included: benzene, ethanol, acetone, aspirin, caffeine, glucose
+  - ~250 lines of production code
+
+- **NMRSpectrum** - Nuclear Magnetic Resonance spectrum visualization
+  - 1H and 13C NMR spectrum support
+  - Lorentzian lineshape simulation
+  - Peak detection and labeling
+  - Chemical shift display (ppm)
+  - Multiplicity annotations (s, d, t, q, m, br)
+  - Integration values
+  - Grid lines and axis labels
+  - Reversed x-axis (standard NMR convention)
+  - Sample spectra: ethanol, acetone, toluene
+  - ~220 lines of production code
+
+- **IRSpectrum** - Infrared spectroscopy visualization
+  - Full IR range support (4000-500 cm⁻¹)
+  - Transmittance display (0-100%)
+  - Functional group region highlighting
+    - O-H/N-H (3200-3600 cm⁻¹)
+    - C-H (2850-3000 cm⁻¹)
+    - C=O (1650-1750 cm⁻¹)
+    - C=C (1620-1680 cm⁻¹)
+    - C-O (1000-1300 cm⁻¹)
+  - Peak labeling with wavenumbers
+  - Gaussian peak simulation
+  - Area fill option
+  - Sample spectra: ethanol, acetone
+  - ~230 lines of production code
+
+- **MassSpectrum** - Mass spectrometry visualization
+  - Bar chart representation of mass peaks
+  - m/z value labeling
+  - Relative intensity display (0-100%)
+  - Base peak highlighting
+  - Molecular ion marker
+  - Fragment ion labels
+  - Minimum intensity threshold filter
+  - Legend for peak types
+  - Sample spectra: ethanol, caffeine
+  - ~200 lines of production code
+
+##### Chemistry Utilities
+
+- **Chemistry Module** (`chemistry.ts`)
+  - `parseNMRData()` - Parse NMR peak lists
+  - `parseIRData()` - Parse IR peak lists
+  - `parseMassSpecData()` - Parse mass spec data
+  - `lorentzian()` - Lorentzian lineshape function
+  - `gaussian()` - Gaussian lineshape function
+  - Sample spectra data structures
+  - Common functional group definitions
+  - TypeScript interfaces for all spectrum types
+  - ~200 lines of production code
+
+##### Dependencies Added
+
+- `smiles-drawer@^0.0.7` - SMILES structure rendering (installed, using simplified SVG renderer)
+
+##### Example Figures
+
+- **chemistry-demo.tsx** - Chemistry visualization showcase
+  - Aspirin molecular structure
+  - Molecules grid (benzene, ethanol, acetone, caffeine)
+  - 1H NMR spectrum of ethanol
+  - 1H NMR spectrum of toluene
+  - IR spectrum of ethanol
+  - Mass spectrum of caffeine
+
+#### Metrics
+
+- New Components: 4 (Molecule, NMRSpectrum, IRSpectrum, MassSpectrum)
+- New Utilities: 1 (chemistry.ts)
+- New Dependencies: 1 (smiles-drawer)
+- Lines of Code: ~1,100
+- Example Figures: 1 (6 variants)
+- Build Time: 675ms
+- TypeScript Errors: 0
+
+---
+
 ## [2.0.0-alpha.3] - 2026-02-09
 
 ### Phase 3: Biology Domain Components

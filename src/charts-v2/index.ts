@@ -32,10 +32,17 @@ export { Legend } from './decorations/Legend';
 export { PhyloTree } from './series/PhyloTree';
 export { SequenceLogo, generateSampleSequences } from './series/SequenceLogo';
 
+// Chemistry components
+export { Molecule, sampleMolecules } from './series/Molecule';
+export { NMRSpectrum } from './series/NMRSpectrum';
+export { IRSpectrum } from './series/IRSpectrum';
+export { MassSpectrum } from './series/MassSpectrum';
+
 // Utilities
 export * from './utils/statistics';
 export * from './utils/colorScales';
 export * from './utils/biology';
+export * from './utils/chemistry';
 
 // Types
 export type { ChartProps } from './Chart';
@@ -55,3 +62,8 @@ export type { SeriesInfo } from './ChartContext';
 export type { PhyloTreeProps, TreeLayout } from './series/PhyloTree';
 export type { SequenceLogoProps, SequenceType } from './series/SequenceLogo';
 export type { PhyloNode } from './utils/biology';
+export type { MoleculeProps } from './series/Molecule';
+export type { NMRSpectrumProps } from './series/NMRSpectrum';
+export type { IRSpectrumProps } from './series/IRSpectrum';
+export type { MassSpectrumProps } from './series/MassSpectrum';
+export type { NMRSpectrum as NMRSpectrumType, IRSpectrum as IRSpectrumType, MassSpectrum as MassSpectrumType, NMRPeak, IRPeak, MassPeak } from './utils/chemistry';

@@ -366,6 +366,50 @@ export const figures: FigureManifestItem[] = [
         props: { variant: 'sequence-logo-protein' }
       }
     ]
+  },
+  {
+    id: 'chemistry-demo',
+    title: 'Chemistry Components (v2)',
+    moduleKey: 'chemistry-demo',
+    size: { unit: 'px', width: 900, height: 500 },
+    variants: [
+      {
+        id: 'default',
+        title: 'Aspirin Structure',
+        background: 'white',
+        props: { variant: 'default' }
+      },
+      {
+        id: 'molecules',
+        title: 'Molecular Structures Grid',
+        background: 'white',
+        props: { variant: 'molecules' }
+      },
+      {
+        id: 'nmr-ethanol',
+        title: '1H NMR - Ethanol',
+        background: 'white',
+        props: { variant: 'nmr-ethanol' }
+      },
+      {
+        id: 'nmr-toluene',
+        title: '1H NMR - Toluene',
+        background: 'white',
+        props: { variant: 'nmr-toluene' }
+      },
+      {
+        id: 'ir-spectra',
+        title: 'IR Spectrum - Ethanol',
+        background: 'white',
+        props: { variant: 'ir-spectra' }
+      },
+      {
+        id: 'mass-spec',
+        title: 'Mass Spectrum - Caffeine',
+        background: 'white',
+        props: { variant: 'mass-spec' }
+      }
+    ]
   }
 ];
 
