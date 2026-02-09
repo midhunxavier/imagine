@@ -5,6 +5,76 @@ All notable changes to the Imagine v2 project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0-alpha.3] - 2026-02-09
+
+### Phase 3: Biology Domain Components
+
+This release adds essential biology visualization components for phylogenetic analysis and sequence analysis, enabling publication-quality figures for evolutionary biology and bioinformatics.
+
+#### Added
+
+##### Biology Components
+
+- **PhyloTree** - Phylogenetic tree visualization
+  - Full Newick format parser with recursive descent parsing
+  - Branch length visualization with configurable scale bar
+  - Bootstrap value extraction and display on internal nodes
+  - Rectangular layout using d3-hierarchy cluster algorithm
+  - Clade highlighting with custom highlight colors
+  - Support for trees with 100+ nodes
+  - Sample trees included: simple, mammals, vertebrates
+  - ~280 lines of production code
+
+- **SequenceLogo** - Sequence conservation and motif visualization
+  - DNA, RNA, and Protein sequence support
+  - Shannon information content calculation in bits
+  - Position-wise frequency analysis
+  - Color-coding by chemistry type:
+    - DNA: A(green), C(red), G(yellow), T/U(blue)
+    - Protein: Polar, hydrophobic, basic, acidic groups
+  - Y-axis with bits scale (2 bits for DNA, ~4.3 for proteins)
+  - Configurable position numbers and intervals
+  - Sample sequence generator for testing
+  - ~200 lines of production code
+
+##### Biology Utilities
+
+- **Newick Parser** (`biology.ts`)
+  - `parseNewick()` - Robust recursive descent parser
+  - `getLeafNodes()` - Extract all leaf nodes
+  - `getInternalNodes()` - Extract all internal nodes
+  - `findNodeByName()` - Find node by name
+  - `getTreeHeight()` - Calculate tree height
+  - `toNewick()` - Convert back to Newick format
+  - Sample trees data structure for testing
+  - ~300 lines of production code
+
+##### Dependencies Added
+
+- `d3-hierarchy@^3.1.2` - Tree layout algorithms
+- `@types/d3-hierarchy` - TypeScript type definitions
+
+##### Example Figures
+
+- **biology-demo.tsx** - Biology visualization showcase
+  - Mammalian phylogeny with bootstrap values
+  - Simple 4-species phylogenetic tree
+  - Vertebrate phylogeny with clade highlighting
+  - DNA sequence logo (50 sequences, 40 positions)
+  - Protein sequence logo (30 sequences, 25 positions)
+
+#### Metrics
+
+- New Components: 2 (PhyloTree, SequenceLogo)
+- New Utilities: 1 (biology.ts)
+- New Dependencies: 2
+- Lines of Code: ~800
+- Example Figures: 1 (5 variants)
+- Build Time: 619ms
+- TypeScript Errors: 0
+
+---
+
 ## [2.0.0-alpha.2] - 2026-02-09
 
 ### Phase 2: Comprehensive Statistical Charts (Weeks 7-10)
