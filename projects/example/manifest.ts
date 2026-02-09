@@ -328,6 +328,44 @@ export const figures: FigureManifestItem[] = [
         props: { variant: 'combined' }
       }
     ]
+  },
+  {
+    id: 'biology-demo',
+    title: 'Biology Components (v2)',
+    moduleKey: 'biology-demo',
+    size: { unit: 'px', width: 900, height: 600 },
+    variants: [
+      {
+        id: 'default',
+        title: 'Phylogenetic Tree (Mammals)',
+        background: 'white',
+        props: { variant: 'default' }
+      },
+      {
+        id: 'phylo-simple',
+        title: 'Simple Phylogenetic Tree',
+        background: 'white',
+        props: { variant: 'phylo-simple' }
+      },
+      {
+        id: 'phylo-vertebrates',
+        title: 'Vertebrate Phylogeny',
+        background: 'white',
+        props: { variant: 'phylo-vertebrates' }
+      },
+      {
+        id: 'sequence-logo-dna',
+        title: 'DNA Sequence Logo',
+        background: 'white',
+        props: { variant: 'sequence-logo-dna' }
+      },
+      {
+        id: 'sequence-logo-protein',
+        title: 'Protein Sequence Logo',
+        background: 'white',
+        props: { variant: 'sequence-logo-protein' }
+      }
+    ]
   }
 ];
 

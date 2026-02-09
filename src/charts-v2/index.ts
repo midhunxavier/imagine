@@ -28,9 +28,14 @@ export { XAxis, YAxis } from './axes/Axes';
 export { Title } from './decorations/Title';
 export { Legend } from './decorations/Legend';
 
+// Biology components
+export { PhyloTree } from './series/PhyloTree';
+export { SequenceLogo, generateSampleSequences } from './series/SequenceLogo';
+
 // Utilities
 export * from './utils/statistics';
 export * from './utils/colorScales';
+export * from './utils/biology';
 
 // Types
 export type { ChartProps } from './Chart';
@@ -47,3 +52,6 @@ export type { AxisProps } from './axes/Axes';
 export type { TitleProps } from './decorations/Title';
 export type { LegendProps } from './decorations/Legend';
 export type { SeriesInfo } from './ChartContext';
+export type { PhyloTreeProps, TreeLayout } from './series/PhyloTree';
+export type { SequenceLogoProps, SequenceType } from './series/SequenceLogo';
+export type { PhyloNode } from './utils/biology';
