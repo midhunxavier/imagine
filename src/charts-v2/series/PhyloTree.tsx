@@ -80,7 +80,7 @@ export function PhyloTree({
 }: PhyloTreeProps) {
   // Ensure scaleBarProp has default values
   const scaleBar = {
-    show: scaleBar.show ?? true,
+    show: scaleBarProp?.show ?? true,
     position: scaleBarProp?.position ?? 'bottom-left',
     length: scaleBarProp?.length ?? 0.1,
     label: scaleBarProp?.label ?? '0.1'

@@ -51,7 +51,7 @@ export default function ChemistryDemo(props: FigureComponentBaseProps & { varian
     return (
       <svg {...figureProps} viewBox={`0 0 ${figureProps.width} ${figureProps.height}`}>
         <NMRSpectrum
-          data={sampleNMRSpectra.ethanol}
+          data={sampleNMRSpectra.ethanol as any}
           width={figureProps.width}
           height={figureProps.height}
           showPeakLabels
@@ -65,7 +65,7 @@ export default function ChemistryDemo(props: FigureComponentBaseProps & { varian
     return (
       <svg {...figureProps} viewBox={`0 0 ${figureProps.width} ${figureProps.height}`}>
         <NMRSpectrum
-          data={sampleNMRSpectra.toluene}
+          data={sampleNMRSpectra.toluene as any}
           width={figureProps.width}
           height={figureProps.height}
           showPeakLabels
@@ -79,7 +79,7 @@ export default function ChemistryDemo(props: FigureComponentBaseProps & { varian
     return (
       <svg {...figureProps} viewBox={`0 0 ${figureProps.width} ${figureProps.height}`}>
         <IRSpectrum
-          data={sampleIRSpectra.ethanol}
+          data={sampleIRSpectra.ethanol as any}
           width={figureProps.width}
           height={figureProps.height}
           showPeakLabels
@@ -94,7 +94,7 @@ export default function ChemistryDemo(props: FigureComponentBaseProps & { varian
     return (
       <svg {...figureProps} viewBox={`0 0 ${figureProps.width} ${figureProps.height}`}>
         <MassSpectrum
-          data={sampleMassSpectra.caffeine}
+          data={sampleMassSpectra.caffeine as any}
           width={figureProps.width}
           height={figureProps.height}
           showPeakLabels

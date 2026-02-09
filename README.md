@@ -2,34 +2,64 @@
 
 React → scientific figures (PNG + SVG) with a live Studio and a Playwright renderer.
 
-**🎉 NEW: v2 Enhanced API** with smart auto-inference, 8 publication themes, and 70% less boilerplate!
+**🎉 NEW: v2 Enhanced API**
+Now with full domain support for Biology, Chemistry, Physics, and Engineering, plus advanced statistical tools and publication-ready export.
+
+## 🌟 Key Features
+
+- **Smart Auto-Inference**: Automatically detects data types, scales, and margins.
+- **5 Scientific Domains**: 35+ specialized components for Bio/Chem/Phys/Eng.
+- **8 Publication Themes**: Nature, Science, Cell, and more built-in.
+- **High-Performance**: Canvas rendering for large datasets (5k+ points).
+- **Responsive**: Charts that adapt to any container size.
+- **Export Ready**: Client-side high-DPI PNG and SVG download.
 
 ## 📚 Documentation
 
-- **[Implementation Guide](./IMPLEMENTATION.md)** - v2 API usage and examples
-- **[Master Plan](./docs/MASTER_PLAN.md)** - Complete 48-week enhancement roadmap  
-- **[Progress Tracker](./docs/PROGRESS.md)** - Current development status
-- **[Quick Reference](./docs/QUICK_REFERENCE.md)** - Developer quick guide
-- **[Analysis](./ANALYSIS.md)** - Gap analysis and competitive landscape
+- **[Chart Library Guide](src/charts-v2/README.md)** - **Start Here!** Comprehensive component reference.
+- **[Implementation Details](./IMPLEMENTATION.md)** - Technical architecture and usage examples.
+- **[Changelog](./CHANGELOG.md)** - Version history and new features.
+- **[Progress Tracker](./PROGRESS.md)** - Development roadmap status.
 
-## ✨ v2 Highlights
+## ✨ Quick Examples
 
-### Smart Auto-Inference
+### Simple Line Chart
 ```tsx
 import { LineChart } from '@/charts-v2';
 
 // Auto-infers x/y fields, scales, margins - just works!
 <LineChart data={data} width={800} height={600} />
-
-// Or customize
-<LineChart data={data} x="time" y="value" theme="nature" showGrid />
 ```
 
-### 8 Publication Themes
-`nature` • `science` • `cell` • `colorblind` • `default` • `minimal` • `print` • `dark`
+### Chemistry: Molecule
+```tsx
+import { Molecule } from '@/charts-v2';
 
-### 70% Less Boilerplate
-**Before (v1):** 15+ lines of setup → **After (v2):** 1 line!
+<Molecule 
+  smiles="CC(=O)OC1=CC=CC=C1C(=O)O" 
+  name="Aspirin" 
+/>
+```
+
+### Physics: Vector Field
+```tsx
+import { VectorField, samplePhysicsData } from '@/charts-v2';
+
+<VectorField 
+  vectors={samplePhysicsData.cylinderFlow(600, 400)} 
+  colorByMagnitude 
+/>
+```
+
+### Advanced: Significance
+```tsx
+import { Chart, BarSeries, SignificanceBracket } from '@/charts-v2';
+
+<Chart data={data}>
+  <BarSeries x="group" y="value" />
+  <SignificanceBracket x1="Control" x2="Treatment" y={10} label="***" />
+</Chart>
+```
 
 ---
 

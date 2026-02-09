@@ -27,6 +27,10 @@ export { XAxis, YAxis } from './axes/Axes';
 // Decorations
 export { Title } from './decorations/Title';
 export { Legend } from './decorations/Legend';
+export { SignificanceBracket } from './decorations/SignificanceBracket';
+export { ScaleBar } from './decorations/ScaleBar';
+export { DataAnnotation } from './decorations/DataAnnotation';
+export { HighlightRegion } from './decorations/HighlightRegion';
 
 // Biology components
 export { PhyloTree } from './series/PhyloTree';
@@ -44,16 +48,33 @@ export { NetworkGraph } from './series/NetworkGraph';
 export { SankeyDiagram } from './series/SankeyDiagram';
 export { SystemDiagram } from './series/SystemDiagram';
 
+// Physics/Mathematics components
+export { VectorField } from './series/VectorField';
+export { ParametricPlot } from './series/ParametricPlot';
+export { PolarPlot } from './series/PolarPlot';
+export { ContourPlot } from './series/ContourPlot';
+export { PhaseDiagram } from './series/PhaseDiagram';
+
 // Utilities
 export * from './utils/statistics';
 export * from './utils/colorScales';
 export * from './utils/biology';
 export * from './utils/chemistry';
 export * from './utils/engineering';
+export * from './utils/physics';
+
+// Export & Integration
+export { ResponsiveChart } from './core/ResponsiveChart';
+export { useChartExport } from './hooks/useChartExport';
+export { ExportControls } from './components/ExportControls';
+export { CanvasScatterSeries } from './series/CanvasScatterSeries';
 
 // Types
 export type { ChartProps } from './Chart';
 export type { ChartContextValue } from './ChartContext';
+export type { ResponsiveChartProps } from './core/ResponsiveChart';
+export type { ExportControlsProps } from './components/ExportControls';
+export type { CanvasScatterSeriesProps } from './series/CanvasScatterSeries';
 export type { LineSeriesProps, CurveType } from './series/LineSeries';
 export type { ScatterSeriesProps } from './series/ScatterSeries';
 export type { BarSeriesProps } from './series/BarSeries';
@@ -65,6 +86,10 @@ export type { DensityPlotProps } from './series/DensityPlot';
 export type { AxisProps } from './axes/Axes';
 export type { TitleProps } from './decorations/Title';
 export type { LegendProps } from './decorations/Legend';
+export type { SignificanceBracketProps } from './decorations/SignificanceBracket';
+export type { ScaleBarProps } from './decorations/ScaleBar';
+export type { DataAnnotationProps } from './decorations/DataAnnotation';
+export type { HighlightRegionProps } from './decorations/HighlightRegion';
 export type { SeriesInfo } from './ChartContext';
 export type { PhyloTreeProps, TreeLayout } from './series/PhyloTree';
 export type { SequenceLogoProps, SequenceType } from './series/SequenceLogo';
@@ -79,3 +104,10 @@ export type { NetworkGraphProps } from './series/NetworkGraph';
 export type { SankeyDiagramProps } from './series/SankeyDiagram';
 export type { SystemDiagramProps } from './series/SystemDiagram';
 export type { FlowNode, FlowEdge, NetworkNode, NetworkEdge, SankeyNode, SankeyLink, SystemBlock } from './utils/engineering';
+
+// Physics/Mathematics types
+export type { VectorFieldProps } from './series/VectorField';
+export type { ParametricPlotProps } from './series/ParametricPlot';
+export type { PolarPlotProps } from './series/PolarPlot';
+export type { ContourPlotProps } from './series/ContourPlot';
+export type { PhaseDiagramProps } from './series/PhaseDiagram';

@@ -448,6 +448,126 @@ export const figures: FigureManifestItem[] = [
         props: { variant: 'system' }
       }
     ]
+  },
+  {
+    id: 'physics-demo',
+    title: 'Physics Components (v2)',
+    moduleKey: 'physics-demo',
+    size: { unit: 'px', width: 1000, height: 700 },
+    variants: [
+      {
+        id: 'default',
+        title: 'Vector Field - Fluid Flow',
+        background: 'white',
+        props: { variant: 'vector-field' }
+      },
+      {
+        id: 'parametric',
+        title: 'Parametric - Lissajous Curve',
+        background: 'white',
+        props: { variant: 'parametric' }
+      },
+      {
+        id: 'polar',
+        title: 'Polar Plot - Rose Curve',
+        background: 'white',
+        props: { variant: 'polar' }
+      },
+      {
+        id: 'contour',
+        title: 'Contour Plot - Scalar Field',
+        background: 'white',
+        props: { variant: 'contour' }
+      },
+      {
+        id: 'phase',
+        title: 'Phase Diagram - Water',
+        background: 'white',
+        props: { variant: 'phase' }
+      },
+      {
+        id: 'dashboard',
+        title: 'Dashboard - Multiple Views',
+        background: 'white',
+        props: { variant: 'dashboard' }
+      }
+    ]
+  },
+  {
+    id: 'advanced-features-demo',
+    title: 'Advanced Features (v2)',
+    moduleKey: 'advanced-features-demo',
+    size: { unit: 'px', width: 800, height: 500 },
+    variants: [
+      {
+        id: 'default',
+        title: 'Significance Brackets',
+        background: 'white',
+        props: { variant: 'significance' }
+      },
+      {
+        id: 'highlights',
+        title: 'Highlighted Regions',
+        background: 'white',
+        props: { variant: 'highlights' }
+      },
+      {
+        id: 'annotations',
+        title: 'Data Annotations',
+        background: 'white',
+        props: { variant: 'annotations' }
+      },
+      {
+        id: 'scalebar',
+        title: 'Scale Bar',
+        background: 'white',
+        props: { variant: 'scalebar' }
+      },
+      {
+        id: 'combined',
+        title: 'Combined Features',
+        background: 'white',
+        props: { variant: 'combined' }
+      },
+      {
+        id: 'multiregion',
+        title: 'Multi-Region Highlighting',
+        background: 'white',
+        props: { variant: 'multiregion' }
+      }
+    ]
+  },
+  {
+    id: 'export-demo',
+    title: 'Export & Integration (v2)',
+    moduleKey: 'export-demo',
+    size: { unit: 'px', width: 900, height: 600 },
+    variants: [
+      {
+        id: 'default',
+        title: 'Responsive Chart',
+        background: 'white',
+        props: { variant: 'responsive' }
+      },
+      {
+        id: 'export',
+        title: 'Export Controls',
+        background: 'white',
+        props: { variant: 'export' }
+      },
+      {
+        id: 'performance',
+        title: 'Performance (Canvas)',
+        background: 'white',
+        props: { variant: 'performance' }
+      },
+      {
+        id: 'dashboard',
+        title: 'Dashboard Layout',
+        background: 'white',
+        props: { variant: 'dashboard' }
+      }
+    ]
   }
 ];
 
