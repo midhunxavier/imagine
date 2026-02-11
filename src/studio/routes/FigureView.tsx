@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { inferControlsFromProps } from '../../core/controls';
 import type { FigureControl, FigureVariant, ProjectDefinition } from '../../core/manifest';
 import { resolveSize } from '../../framework/sizing';
+import { Button, ButtonLink, Input, Select, Switch, Textarea } from '../components/ui';
 import { loadFigureComponent } from '../figureLoader';
 import { loadProject } from '../projectLoader';
 import { useProjectProps } from '../useProjectProps';
@@ -68,9 +69,9 @@ export function FigureView() {
       // eslint-disable-next-line no-console
       console.error(err);
       setFigureComponent(() => () => (
-        <div className="empty">
-          <div className="emptyTitle">Failed to load figure module</div>
-          <div className="emptyBody mono">{String(err?.message ?? err)}</div>
+        <div className="m-4 rounded-card border border-studio-border bg-white p-6">
+          <div className="mb-1.5 font-extrabold">Failed to load figure module</div>
+          <div className="font-mono text-xs text-studio-subtle">{String(err?.message ?? err)}</div>
         </div>
       ));
     });
@@ -94,10 +95,10 @@ export function FigureView() {
 
   if (projectError) {
     return (
-      <div className="page">
-        <div className="empty">
-          <div className="emptyTitle">Failed to load project</div>
-          <div className="emptyBody mono">{projectError}</div>
+      <div className="flex flex-1 min-w-0 flex-col">
+        <div className="m-10 rounded-card border border-studio-border bg-white p-6">
+          <div className="mb-1.5 font-extrabold">Failed to load project</div>
+          <div className="font-mono text-xs text-studio-subtle">{projectError}</div>
         </div>
       </div>
     );
@@ -105,11 +106,18 @@ export function FigureView() {
 
   if (!fig || !variant) {
     return (
-      <div className="page">
-        <div className="empty">
-          <div className="emptyTitle">Figure not found</div>
-          <div className="emptyBody">
-            Go back to <Link to={`/project/${encodeURIComponent(projectId)}`}>project</Link>.
+      <div className="flex flex-1 min-w-0 flex-col">
+        <div className="m-10 rounded-card border border-studio-border bg-white p-6">
+          <div className="mb-1.5 font-extrabold">Figure not found</div>
+          <div className="text-sm text-studio-subtle">
+            Go back to{' '}
+            <Link
+              className="font-medium text-studio-blue underline underline-offset-4 hover:opacity-90"
+              to={`/project/${encodeURIComponent(projectId)}`}
+            >
+              project
+            </Link>
+            .
           </div>
         </div>
       </div>
@@ -137,97 +145,88 @@ export function FigureView() {
   const mmText = size.mm && size.dpi ? `${size.mm.width}×${size.mm.height} mm @ ${size.dpi}dpi` : null;
 
   return (
-    <div className="page figurePage">
-      <div className="pageHeader figureHeader">
-        <div className="figureHeaderLeft">
-          <div className="pageTitle">{fig.title}</div>
-          <div className="pageSubtitle">
-            <span className="mono">{fig.id}</span> • {size.width}×{size.height} px{mmText ? ` • ${mmText}` : ''}
+    <div className="flex flex-1 min-w-0 flex-col">
+      <div className="flex items-start justify-between gap-4 border-b border-studio-border bg-white px-4 py-4">
+        <div className="min-w-0">
+          <div className="text-base font-extrabold">{fig.title}</div>
+          <div className="mt-1 text-sm text-studio-subtle">
+            <span className="font-mono">{fig.id}</span> • {size.width}×{size.height} px{mmText ? ` • ${mmText}` : ''}
           </div>
         </div>
-        <div className="figureHeaderRight">
-          <label className="label">
-            Variant
-            <select
-              className="select"
-              value={variant.id}
-              onChange={(e) =>
-                navigate(
-                  `/project/${encodeURIComponent(projectId)}/figure/${encodeURIComponent(fig.id)}/${encodeURIComponent(
-                    e.target.value
-                  )}`
-                )
-              }
-            >
-              {fig.variants.map((v) => (
-                <option key={v.id} value={v.id}>
-                  {v.title ? `${v.title} (${v.id})` : v.id}
-                </option>
-              ))}
-            </select>
-          </label>
+        <div className="flex flex-wrap items-end gap-2.5">
+          <Select
+            label="Variant"
+            className="min-w-[160px]"
+            value={variant.id}
+            onChange={(e) =>
+              navigate(
+                `/project/${encodeURIComponent(projectId)}/figure/${encodeURIComponent(fig.id)}/${encodeURIComponent(
+                  e.target.value
+                )}`
+              )
+            }
+            options={fig.variants.map((v) => ({ value: v.id, label: v.title ? `${v.title} (${v.id})` : v.id }))}
+          />
 
-          <div className="toolbarGroup">
-            <button className="btn btnSmall" onClick={() => setZoom({ kind: 'fit' })}>
+          <div className="inline-flex gap-2">
+            <Button size="sm" onClick={() => setZoom({ kind: 'fit' })}>
               Fit
-            </button>
-            <button className="btn btnSmall" onClick={() => setZoom({ kind: 'percent', value: 100 })}>
+            </Button>
+            <Button size="sm" onClick={() => setZoom({ kind: 'percent', value: 100 })}>
               100%
-            </button>
-            <button className="btn btnSmall" onClick={() => setZoom({ kind: 'percent', value: 200 })}>
+            </Button>
+            <Button size="sm" onClick={() => setZoom({ kind: 'percent', value: 200 })}>
               200%
-            </button>
+            </Button>
           </div>
 
-          <label className="label">
-            Zoom
-            <input
-              className="input"
-              type="number"
-              min={5}
-              max={800}
-              step={5}
-              value={zoom.kind === 'percent' ? zoom.value : Math.round(scale * 100)}
-              onChange={(e) => setZoom({ kind: 'percent', value: coerceZoomValue(Number(e.target.value)) })}
-            />
-          </label>
+          <Input
+            containerClassName="min-w-[110px]"
+            label="Zoom"
+            type="number"
+            min={5}
+            max={800}
+            step={5}
+            value={zoom.kind === 'percent' ? zoom.value : Math.round(scale * 100)}
+            onChange={(e) => setZoom({ kind: 'percent', value: coerceZoomValue(Number(e.target.value)) })}
+          />
 
-          <label className="checkbox">
-            <input type="checkbox" checked={checker} onChange={(e) => setChecker(e.target.checked)} /> Checkerboard
-          </label>
+          <Switch checked={checker} onCheckedChange={setChecker} label="Checkerboard" />
 
-          <Link
-            className="btn btnSmall"
+          <ButtonLink
             to={`/render/${encodeURIComponent(projectId)}/${encodeURIComponent(fig.id)}/${encodeURIComponent(variant.id)}`}
             target="_blank"
           >
             Render route
-          </Link>
+          </ButtonLink>
         </div>
       </div>
 
-      <div className="figureBody">
-        <div className={`previewSurface ${checker ? 'checker' : ''}`} ref={surfaceRef}>
-          <div className="previewScale" style={{ transform: `scale(${scale})` }}>
-            <div id="figure-root" style={{ width: size.width, height: size.height }}>
-              {FigureComponent ? <FigureComponent {...props} /> : <div className="loading">Loading…</div>}
+      <div className="flex flex-1 min-h-0">
+        <div
+          className={`flex-1 min-w-0 overflow-auto bg-studio-bg p-4 ${checker ? 'studio-checkerboard' : ''}`}
+          ref={surfaceRef}
+        >
+          <div className="origin-top-left inline-block" style={{ transform: `scale(${scale})` }}>
+            <div id="figure-root" className="shadow-figure" style={{ width: size.width, height: size.height }}>
+              {FigureComponent ? <FigureComponent {...props} /> : <div className="p-4 text-sm text-studio-subtle">Loading…</div>}
             </div>
           </div>
         </div>
 
-        <aside className="controlsPanel" aria-label="Controls">
-          <div className="controlsHeader">
-            <div className="controlsTitle">Controls</div>
-            <div className="controlsActions">
-              <button
-                className="btn btnSmall"
+        <aside className="w-[360px] shrink-0 overflow-auto border-l border-studio-border bg-white p-4" aria-label="Controls">
+          <div className="mb-2 flex items-center justify-between gap-2.5">
+            <div className="font-extrabold">Controls</div>
+            <div className="inline-flex gap-2">
+              <Button
+                size="sm"
                 onClick={() => propsState.resetVariantOverrides(fig.id, variant.id)}
                 title="Clear saved overrides for this variant"
               >
                 Reset
-              </button>
-              <button
-                className="btn btnSmall"
+              </Button>
+              <Button
+                size="sm"
                 onClick={async () => {
                   const json = JSON.stringify(variantOverrides, null, 2);
                   try {
@@ -239,29 +238,27 @@ export function FigureView() {
                 title="Copy overrides JSON"
               >
                 Copy JSON
-              </button>
+              </Button>
             </div>
           </div>
 
-          <div className="controlsStatus">
+          <div className="mb-3 text-xs text-studio-subtle">
             {propsState.readOnly ? (
-              <span className="statusMuted" title={propsState.loadError ?? undefined}>
-                Saving disabled
-              </span>
+              <span title={propsState.loadError ?? undefined}>Saving disabled</span>
             ) : propsState.saveStatus === 'saving' ? (
-              <span className="statusMuted">Saving…</span>
+              <span>Saving…</span>
             ) : propsState.saveStatus === 'saved' ? (
-              <span className="statusOk">Saved</span>
+              <span className="font-semibold text-emerald-700">Saved</span>
             ) : propsState.saveStatus === 'error' ? (
-              <span className="statusErr">Save failed</span>
+              <span className="font-semibold text-studio-red">Save failed</span>
             ) : (
-              <span className="statusMuted">Edits auto-save</span>
+              <span>Edits auto-save</span>
             )}
-            {propsState.saveError ? <div className="statusErr mono">{propsState.saveError}</div> : null}
+            {propsState.saveError ? <div className="mt-2 font-mono text-xs text-studio-red">{propsState.saveError}</div> : null}
           </div>
 
           {controls.length ? (
-            <div className="controlsGrid">
+            <div className="flex flex-col gap-2.5">
               {controls.map((c, idx) => {
                 const key = c.key;
                 const label = c.label ?? key;
@@ -269,86 +266,77 @@ export function FigureView() {
 
                 if (c.kind === 'text') {
                   const value = typeof currentValue === 'string' ? currentValue : currentValue == null ? '' : String(currentValue);
+                  if (c.multiline) {
+                    return (
+                      <Textarea
+                        key={`${key}:${idx}`}
+                        label={label}
+                        rows={5}
+                        autoResize
+                        maxRows={12}
+                        placeholder={c.placeholder}
+                        value={value}
+                        onChange={(e) => propsState.setVariantOverride(fig.id, variant.id, key, e.target.value)}
+                      />
+                    );
+                  }
                   return (
-                    <label key={`${key}:${idx}`} className="control">
-                      <div className="controlLabel">{label}</div>
-                      {c.multiline ? (
-                        <textarea
-                          className="textarea"
-                          rows={5}
-                          placeholder={c.placeholder}
-                          value={value}
-                          onChange={(e) => propsState.setVariantOverride(fig.id, variant.id, key, e.target.value)}
-                        />
-                      ) : (
-                        <input
-                          className="input"
-                          type="text"
-                          placeholder={c.placeholder}
-                          value={value}
-                          onChange={(e) => propsState.setVariantOverride(fig.id, variant.id, key, e.target.value)}
-                        />
-                      )}
-                    </label>
+                    <Input
+                      key={`${key}:${idx}`}
+                      label={label}
+                      type="text"
+                      placeholder={c.placeholder}
+                      value={value}
+                      onChange={(e) => propsState.setVariantOverride(fig.id, variant.id, key, e.target.value)}
+                    />
                   );
                 }
 
                 if (c.kind === 'number') {
                   const value = typeof currentValue === 'number' && Number.isFinite(currentValue) ? String(currentValue) : '';
                   return (
-                    <label key={`${key}:${idx}`} className="control">
-                      <div className="controlLabel">{label}</div>
-                      <input
-                        className="input"
-                        type="number"
-                        min={c.min}
-                        max={c.max}
-                        step={c.step}
-                        value={value}
-                        onChange={(e) => {
-                          const s = e.target.value;
-                          if (!s) propsState.setVariantOverride(fig.id, variant.id, key, undefined);
-                          else {
-                            const n = Number(s);
-                            propsState.setVariantOverride(fig.id, variant.id, key, Number.isFinite(n) ? n : undefined);
-                          }
-                        }}
-                      />
-                    </label>
+                    <Input
+                      key={`${key}:${idx}`}
+                      label={label}
+                      type="number"
+                      min={c.min}
+                      max={c.max}
+                      step={c.step}
+                      value={value}
+                      onChange={(e) => {
+                        const s = e.target.value;
+                        if (!s) propsState.setVariantOverride(fig.id, variant.id, key, undefined);
+                        else {
+                          const n = Number(s);
+                          propsState.setVariantOverride(fig.id, variant.id, key, Number.isFinite(n) ? n : undefined);
+                        }
+                      }}
+                    />
                   );
                 }
 
                 if (c.kind === 'boolean') {
                   const checked = Boolean(currentValue);
                   return (
-                    <label key={`${key}:${idx}`} className="control controlCheckbox">
-                      <input
-                        type="checkbox"
-                        checked={checked}
-                        onChange={(e) => propsState.setVariantOverride(fig.id, variant.id, key, e.target.checked)}
-                      />
-                      <div className="controlLabel">{label}</div>
-                    </label>
+                    <Switch
+                      key={`${key}:${idx}`}
+                      checked={checked}
+                      onCheckedChange={(next) => propsState.setVariantOverride(fig.id, variant.id, key, next)}
+                      label={label}
+                    />
                   );
                 }
 
                 if (c.kind === 'select') {
                   const value = typeof currentValue === 'string' ? currentValue : currentValue == null ? '' : String(currentValue);
                   return (
-                    <label key={`${key}:${idx}`} className="control">
-                      <div className="controlLabel">{label}</div>
-                      <select
-                        className="select"
-                        value={value}
-                        onChange={(e) => propsState.setVariantOverride(fig.id, variant.id, key, e.target.value)}
-                      >
-                        {c.options.map((opt) => (
-                          <option key={opt.value} value={opt.value}>
-                            {opt.label}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
+                    <Select
+                      key={`${key}:${idx}`}
+                      label={label}
+                      value={value}
+                      onChange={(e) => propsState.setVariantOverride(fig.id, variant.id, key, e.target.value)}
+                      options={c.options.map((opt) => ({ value: opt.value, label: opt.label }))}
+                    />
                   );
                 }
 
@@ -356,7 +344,7 @@ export function FigureView() {
               })}
             </div>
           ) : (
-            <div className="controlsEmpty">No editable props found.</div>
+            <div className="py-3 text-sm text-studio-subtle">No editable props found.</div>
           )}
         </aside>
       </div>

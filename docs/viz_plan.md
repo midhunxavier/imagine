@@ -9,37 +9,52 @@ Transform the Imagine Studio from a basic dev preview into a polished, professio
 Phase 1: Tailwind CSS Foundation
 Tasks
 1. Install dependencies
-      npm install -D tailwindcss postcss autoprefixer
-   npx tailwindcss init -p
+      npm install -D tailwindcss @tailwindcss/postcss postcss autoprefixer
+   (Tailwind v4 uses `@tailwindcss/postcss`; config files can be created manually—CLI init is optional.)
    
-2. Create tailwind.config.js with custom theme:
-   - Colors from existing theme.ts (text, subtleText, panel, blue, teal, orange, red)
-   - Extended shadows, border radius, transitions
-   - Custom font families
-3. Create postcss.config.js for Vite integration
-4. Update src/studio/studio.css:
-   - Add Tailwind directives (@tailwind base; components; utilities;)
-   - Keep necessary custom CSS, convert rest to utilities
-5. Update vite.config.ts if needed for CSS processing
-6. Create design tokens reference (src/studio/design-tokens.ts):
-   - Export color constants matching Tailwind config
-   - Define spacing/sizing constants
+2. Create `src/studio/design-tokens.ts` (single source of truth):
+   - Derive colors/fonts from `src/framework/theme.ts`
+   - Add Studio UI tokens (bg, borders, radii, shadows, transitions)
+3. Create `tailwind.config.ts` using tokens:
+   - `theme.extend.colors.studio = studioTokens.colors`
+   - Extend border radius, shadows, fonts, transition durations
+4. Create `postcss.config.cjs` for Vite integration:
+   - Plugins: `@tailwindcss/postcss`, `autoprefixer`
+5. Update `src/studio/studio.css`:
+   - Use Tailwind v4 entrypoint: `@import "tailwindcss";`
+   - Load the Tailwind config: `@config "../../tailwind.config.ts";` (must come after `@import`)
+   - Keep only minimal global/custom CSS (e.g. checkerboard utility)
+6. Migrate Studio TSX to Tailwind utilities:
+   - Replace legacy semantic classnames (e.g. `sidebar`, `card`, `controlsPanel`)
+   - Add consistent focus-visible rings, spacing, hover elevation
 ---
 Phase 2: UI Component Library
+Notes
+- Phase 2 `Select` is **native-only** (styled `<select>`). Searchable/combobox behavior lands in Phase 3 `SelectControl`.
+- All components use consistent `focus-visible` rings, `rounded-control` radii, and subtle hover elevation (`shadow-cardHover`).
+
 2.1 Base Components (src/studio/components/ui/)
 | Component | Description | Key Props |
 |-----------|-------------|-----------|
 | Button.tsx | Variants: primary, secondary, ghost, danger | variant, size, disabled, loading |
 | Input.tsx | Text input with label | label, error, prefix, suffix, clearable |
 | Textarea.tsx | Auto-resize textarea | rows, maxRows, autoResize |
-| Select.tsx | Styled dropdown | options, placeholder, searchable |
-| Switch.tsx | Toggle switch | checked, onChange, label |
+| Select.tsx | Native styled dropdown | options, placeholder |
+| Switch.tsx | Toggle switch | checked, onCheckedChange, label |
 | Card.tsx | Container with variants | variant, padding, hover |
 | Badge.tsx | Status badges | variant (success, warning, error, info) |
 | Tooltip.tsx | Hover tooltips | content, placement |
 | Divider.tsx | Section separator | orientation, label |
 | Skeleton.tsx | Loading placeholder | width, height, variant |
-2.2 Component Implementation Details
+
+2.2 Refactor targets
+- Replace inline Tailwind class constants in:
+  - src/studio/StudioApp.tsx
+  - src/studio/routes/ProjectsHome.tsx
+  - src/studio/routes/ProjectHome.tsx
+  - src/studio/routes/FigureView.tsx
+- Mirror the same component additions + refactors into both `create-imagine` templates (`blank` + `example`).
+2.3 Component Implementation Details
 Button.tsx example structure:
 interface ButtonProps {
   variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
