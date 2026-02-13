@@ -1,5 +1,7 @@
+import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import type { FigureManifestItem, ProjectDefinition } from '../../../core/manifest';
+import { useSidebarFocus } from '../../hooks/useSidebarFocus';
 import { Button, Input, cn } from '../ui';
 
 function initials(label: string): string {
@@ -39,13 +41,25 @@ export function Sidebar({
   onMiniModeChange,
   onHome
 }: SidebarProps) {
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const { registerFocusSearch } = useSidebarFocus();
+
+  useEffect(() => {
+    registerFocusSearch(() => {
+      if (!miniMode && searchInputRef.current) {
+        searchInputRef.current.focus();
+        searchInputRef.current.select();
+      }
+    });
+  }, [registerFocusSearch, miniMode]);
+
   const navItemBase =
     'block rounded-control border border-transparent px-2.5 py-2.5 no-underline hover:bg-studio-panel transition-colors duration-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-studio-blue/30';
 
   return (
     <aside
       className={cn(
-        'flex shrink-0 flex-col border-r border-studio-border bg-white transition-[width] duration-150 ease-out',
+        'flex shrink-0 flex-col border-r border-studio-border bg-white transition-[width] duration-150 ease-out dark:bg-gray-900 dark:border-gray-700',
         miniMode ? 'w-[60px]' : 'w-[300px]'
       )}
     >
@@ -118,7 +132,7 @@ export function Sidebar({
         <div className={cn('flex flex-1 flex-col', miniMode ? 'px-1.5 py-2' : 'px-2.5 py-3')}>
           {!miniMode ? <div className="px-1.5 pb-2 text-xs font-bold uppercase tracking-wider text-gray-500">Figures</div> : null}
           {!miniMode ? (
-            <Input uiSize="md" placeholder={`Search in ${activeProject.title}…`} value={query} onChange={(event) => onQueryChange(event.target.value)} />
+            <Input ref={searchInputRef} uiSize="md" placeholder={`Search in ${activeProject.title}…`} value={query} onChange={(event) => onQueryChange(event.target.value)} />
           ) : null}
           <nav className={cn('flex-1 overflow-auto', miniMode ? 'mt-1 space-y-1' : 'p-1.5')} aria-label="Figures">
             {filteredFigures.map((figure) => {
@@ -165,7 +179,11 @@ export function Sidebar({
       {!miniMode ? (
         <div className="border-t border-studio-border px-3 py-2.5 text-[11px] text-studio-subtle">
           <div className="font-semibold uppercase tracking-wider text-gray-500">Keyboard Hints</div>
-          <div className="mt-1">Shortcut bindings are introduced in Phase 8.</div>
+          <div className="mt-1">
+            <div>Ctrl/Cmd+K: Search • Ctrl/Cmd+S: Save</div>
+            <div>Ctrl/Cmd+Z: Undo • Ctrl/Cmd+Shift+Z: Redo</div>
+            <div>Ctrl/Cmd+0: Fit • +/-: Zoom • Esc: Exit Edit</div>
+          </div>
         </div>
       ) : null}
     </aside>

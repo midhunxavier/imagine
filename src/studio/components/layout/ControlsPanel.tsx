@@ -19,6 +19,10 @@ type ControlsPanelProps = {
   loadError: string | null;
   collapsed: boolean;
   onToggleCollapsed: () => void;
+  onUndo?: () => void;
+  onRedo?: () => void;
+  canUndo?: boolean;
+  canRedo?: boolean;
 };
 
 export function ControlsPanel({
@@ -33,14 +37,18 @@ export function ControlsPanel({
   readOnly,
   loadError,
   collapsed,
-  onToggleCollapsed
+  onToggleCollapsed,
+  onUndo,
+  onRedo,
+  canUndo = false,
+  canRedo = false
 }: ControlsPanelProps) {
   const [showJson, setShowJson] = useState(false);
   const groups = useMemo(() => groupControls(controls), [controls]);
 
   if (collapsed) {
     return (
-      <aside className="flex w-[52px] shrink-0 items-start justify-center border-l border-studio-border bg-white p-2" aria-label="Controls">
+      <aside className="flex w-[52px] shrink-0 items-start justify-center border-l border-studio-border bg-white p-2 dark:bg-gray-900 dark:border-gray-700" aria-label="Controls">
         <Button size="sm" variant="ghost" onClick={onToggleCollapsed} title="Expand controls">
           »
         </Button>
@@ -49,10 +57,28 @@ export function ControlsPanel({
   }
 
   return (
-    <aside className="w-[360px] shrink-0 overflow-auto border-l border-studio-border bg-white p-4" aria-label="Controls">
+    <aside className="w-[360px] shrink-0 overflow-auto border-l border-studio-border bg-white p-4 dark:bg-gray-900 dark:border-gray-700" aria-label="Controls">
       <div className="mb-2 flex items-center justify-between gap-2.5">
         <div className="font-extrabold">Controls</div>
         <div className="inline-flex gap-1.5">
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={onUndo}
+            disabled={!canUndo || readOnly}
+            title="Undo (Ctrl/Cmd+Z)"
+          >
+            ↩
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={onRedo}
+            disabled={!canRedo || readOnly}
+            title="Redo (Ctrl/Cmd+Shift+Z)"
+          >
+            ↪
+          </Button>
           <Button size="sm" variant="ghost" onClick={onToggleCollapsed} title="Collapse controls">
             «
           </Button>

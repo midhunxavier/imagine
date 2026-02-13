@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Button, ButtonLink, Input, Select, Switch } from '../ui';
+import { Button, ButtonLink, Input, Select, Switch, ThemeToggle } from '../ui';
 
 export type HeaderVariant = {
   id: string;
@@ -50,7 +50,7 @@ export function Header({
   onToggleControlsCollapse
 }: HeaderProps) {
   return (
-    <header className="h-16 border-b border-studio-border bg-white/80 px-4 backdrop-blur">
+    <header className="h-16 border-b border-studio-border bg-white/80 px-4 backdrop-blur dark:bg-gray-900/80 dark:border-gray-700">
       <div className="flex h-full items-center justify-between gap-3">
         <div className="min-w-0">
           <div className="flex items-center gap-2 text-xs text-studio-subtle">
@@ -116,6 +116,8 @@ export function Header({
           <ButtonLink to={renderRouteTo} target="_blank">
             Render route
           </ButtonLink>
+
+          <ThemeToggle size="sm" />
         </div>
       </div>
     </header>

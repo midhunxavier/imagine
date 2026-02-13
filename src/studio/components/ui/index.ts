@@ -10,4 +10,7 @@ export * from './Skeleton';
 export * from './styles';
 export * from './Switch';
 export * from './Textarea';
+export * from './ThemeToggle';
+export * from './ToastContainer';
+export * from './ToastItem';
 export * from './Tooltip';

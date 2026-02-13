@@ -2,6 +2,11 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, Route, Routes, useMatch, useNavigate } from 'react-router-dom';
 import type { ProjectDefinition } from '../core/manifest';
 import { Sidebar, readSidebarMini, writeSidebarMini } from './components/layout';
+import { ErrorBoundary } from './components/ErrorBoundary';
+import { ToastContainer } from './components/ui/ToastContainer';
+import { SidebarFocusProvider } from './hooks/useSidebarFocus';
+import { ThemeProvider } from './hooks/useTheme';
+import { ToastProvider } from './hooks/useToast';
 import { loadAllProjects } from './projectLoader';
 import { ProjectsHome } from './routes/ProjectsHome';
 import { ProjectHome } from './routes/ProjectHome';
@@ -47,43 +52,53 @@ export function StudioApp() {
   }, [activeProject, query]);
 
   return (
-    <div className="flex h-dvh overflow-hidden bg-studio-bg font-sans text-studio-text antialiased">
-      <Sidebar
-        projects={projects}
-        projectsError={projectsError}
-        activeProjectId={activeProjectId}
-        activeFigureId={activeId}
-        activeProject={activeProject}
-        filteredFigures={filteredFigures}
-        query={query}
-        onQueryChange={setQuery}
-        miniMode={miniMode}
-        onMiniModeChange={setMiniMode}
-        onHome={() => navigate('/')}
-      />
+    <ThemeProvider>
+      <ToastProvider>
+        <SidebarFocusProvider>
+          <div className="flex h-dvh overflow-hidden bg-studio-bg font-sans text-studio-text antialiased">
+            <Sidebar
+              projects={projects}
+              projectsError={projectsError}
+              activeProjectId={activeProjectId}
+              activeFigureId={activeId}
+              activeProject={activeProject}
+              filteredFigures={filteredFigures}
+              query={query}
+              onQueryChange={setQuery}
+              miniMode={miniMode}
+              onMiniModeChange={setMiniMode}
+              onHome={() => navigate('/')}
+            />
 
-      <main className="flex flex-1 min-w-0">
-        <Routes>
-          <Route path="/" element={<ProjectsHome />} />
-          <Route path="/project/:projectId" element={<ProjectHome />} />
-          <Route path="/project/:projectId/figure/:figureId/:variantId?" element={<FigureView />} />
-          <Route
-            path="*"
-            element={
-              <div className="m-10 rounded-card border border-studio-border bg-white p-6">
-                <div className="mb-1.5 font-extrabold">Not found</div>
-                <div className="text-sm text-studio-subtle">
-                  Go back to{' '}
-                  <Link className="font-medium text-studio-blue underline underline-offset-4 hover:opacity-90" to="/">
-                    home
-                  </Link>
-                  .
-                </div>
-              </div>
-            }
-          />
-        </Routes>
-      </main>
-    </div>
+            <main className="flex flex-1 min-w-0">
+              <ErrorBoundary>
+                <Routes>
+                  <Route path="/" element={<ProjectsHome />} />
+                  <Route path="/project/:projectId" element={<ProjectHome />} />
+                  <Route path="/project/:projectId/figure/:figureId/:variantId?" element={<FigureView />} />
+                  <Route
+                    path="*"
+                    element={
+                      <div className="m-10 rounded-card border border-studio-border bg-white p-6">
+                        <div className="mb-1.5 font-extrabold">Not found</div>
+                        <div className="text-sm text-studio-subtle">
+                          Go back to{' '}
+                          <Link className="font-medium text-studio-blue underline underline-offset-4 hover:opacity-90" to="/">
+                            home
+                          </Link>
+                          .
+                        </div>
+                      </div>
+                    }
+                  />
+                </Routes>
+              </ErrorBoundary>
+            </main>
+            
+            <ToastContainer />
+          </div>
+        </SidebarFocusProvider>
+      </ToastProvider>
+    </ThemeProvider>
   );
 }

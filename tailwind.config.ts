@@ -3,10 +3,14 @@ import { studioTokens } from './src/studio/design-tokens';
 
 export default {
   content: ['./index.html', './src/**/*.{ts,tsx}'],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
-        studio: studioTokens.colors
+        studio: {
+          ...studioTokens.colors,
+          ...studioTokens.darkColors
+        }
       },
       borderRadius: {
         control: studioTokens.radii.control,

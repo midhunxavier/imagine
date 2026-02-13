@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react';
-import { useId } from 'react';
+import type { ReactNode, Ref } from 'react';
+import { forwardRef, useId } from 'react';
 import { cn } from './cn';
 import { fieldError, fieldHint, fieldLabel, focusRing } from './styles';
 
@@ -23,7 +23,7 @@ export type InputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size
   containerClassName?: string;
 };
 
-export function Input({
+export const Input = forwardRef<HTMLInputElement, InputProps>(function Input({
   uiSize = 'md',
   label,
   hint,
@@ -41,7 +41,7 @@ export function Input({
   'aria-describedby': ariaDescribedBy,
   value,
   ...rest
-}: InputProps) {
+}: InputProps, ref: Ref<HTMLInputElement>) {
   const autoId = useId();
   const inputId = id ?? autoId;
   const hintId = hint ? `${inputId}-hint` : undefined;
@@ -66,6 +66,7 @@ export function Input({
       >
         {prefix ? <div className="text-studio-subtle">{prefix}</div> : null}
         <input
+          ref={ref}
           id={inputId}
           className={cn(
             'min-w-0 flex-1 bg-transparent outline-none placeholder:text-studio-subtle/70',
@@ -104,4 +105,4 @@ export function Input({
       ) : null}
     </div>
   );
-}
+});

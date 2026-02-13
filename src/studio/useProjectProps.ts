@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { PropsFileV1 } from '../core/manifest';
 import { emptyPropsFile, fetchPropsFile, savePropsFile } from './propsApi';
+import { useHistory } from './hooks/useHistory';
 
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 
@@ -9,7 +10,7 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 }
 
 export function useProjectProps(projectId: string) {
-  const [file, setFile] = useState<PropsFileV1>(() => emptyPropsFile());
+  const { state: file, set: setFile, setDebounced, undo, redo, canUndo, canRedo, reset } = useHistory<PropsFileV1>(emptyPropsFile());
   const [readOnly, setReadOnly] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
@@ -27,11 +28,11 @@ export function useProjectProps(projectId: string) {
 
     fetchPropsFile(projectId).then(
       (f) => {
-        setFile(f);
+        reset(f);
         setReadOnly(false);
       },
       (err) => {
-        setFile(emptyPropsFile());
+        reset(emptyPropsFile());
         setReadOnly(true);
         setLoadError(String(err?.message ?? err));
       }
@@ -41,7 +42,29 @@ export function useProjectProps(projectId: string) {
       if (saveTimer.current) window.clearTimeout(saveTimer.current);
       saveTimer.current = null;
     };
-  }, [projectId]);
+  }, [projectId, reset]);
+
+  const forceSave = useCallback(
+    async (next: PropsFileV1) => {
+      if (readOnly) return;
+      if (saveTimer.current) {
+        window.clearTimeout(saveTimer.current);
+        saveTimer.current = null;
+      }
+
+      setSaveStatus('saving');
+      setSaveError(null);
+
+      try {
+        await savePropsFile(projectId, next);
+        setSaveStatus('saved');
+      } catch (err) {
+        setSaveStatus('error');
+        setSaveError(String((err as Error)?.message ?? err));
+      }
+    },
+    [projectId, readOnly]
+  );
 
   const queueSave = useCallback(
     (next: PropsFileV1) => {
@@ -52,22 +75,15 @@ export function useProjectProps(projectId: string) {
       setSaveError(null);
       saveTimer.current = window.setTimeout(() => {
         saveTimer.current = null;
-        const toSave = next;
-        savePropsFile(projectId, toSave).then(
-          () => setSaveStatus('saved'),
-          (err) => {
-            setSaveStatus('error');
-            setSaveError(String(err?.message ?? err));
-          }
-        );
+        forceSave(next);
       }, 350);
     },
-    [projectId, readOnly]
+    [readOnly, forceSave]
   );
 
   const setVariantOverride = useCallback(
     (figureId: string, variantId: string, key: string, value: unknown) => {
-      setFile((prev) => {
+      setDebounced((prev: PropsFileV1) => {
         const overrides = { ...prev.overrides };
         const fig = { ...(overrides[figureId] ?? {}) };
         const variant = { ...(fig[variantId] ?? {}) };
@@ -82,12 +98,12 @@ export function useProjectProps(projectId: string) {
         return next;
       });
     },
-    [queueSave]
+    [setDebounced, queueSave]
   );
 
   const resetVariantOverrides = useCallback(
     (figureId: string, variantId: string) => {
-      setFile((prev) => {
+      setDebounced((prev: PropsFileV1) => {
         const overrides = { ...prev.overrides };
         const fig = { ...(overrides[figureId] ?? {}) };
         delete fig[variantId];
@@ -100,7 +116,7 @@ export function useProjectProps(projectId: string) {
         return next;
       });
     },
-    [queueSave]
+    [setDebounced, queueSave]
   );
 
   const getVariantOverrides = useCallback(
@@ -120,9 +136,14 @@ export function useProjectProps(projectId: string) {
       saveError,
       setVariantOverride,
       resetVariantOverrides,
-      getVariantOverrides
+      getVariantOverrides,
+      undo,
+      redo,
+      canUndo,
+      canRedo,
+      forceSave
     }),
-    [file, getVariantOverrides, loadError, readOnly, resetVariantOverrides, saveError, saveStatus, setVariantOverride]
+    [file, getVariantOverrides, loadError, readOnly, resetVariantOverrides, saveError, saveStatus, setVariantOverride, undo, redo, canUndo, canRedo, forceSave]
   );
 
   return value;

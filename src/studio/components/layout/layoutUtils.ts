@@ -1,6 +1,8 @@
 import type { FigureControl } from '../../../core/manifest';
+import type { StudioTheme } from '../../hooks/useTheme';
 
 export const SIDEBAR_MINI_STORAGE_KEY = 'imagine:studio:sidebar-mini';
+export const THEME_STORAGE_KEY = 'imagine:studio:theme';
 
 export function readSidebarMini(defaultValue: boolean): boolean {
   if (typeof window === 'undefined') return defaultValue;
@@ -19,6 +21,27 @@ export function writeSidebarMini(value: boolean): void {
   if (typeof window === 'undefined') return;
   try {
     window.localStorage.setItem(SIDEBAR_MINI_STORAGE_KEY, value ? '1' : '0');
+  } catch {
+    // no-op
+  }
+}
+
+export function readTheme(defaultValue: StudioTheme): StudioTheme {
+  if (typeof window === 'undefined') return defaultValue;
+  try {
+    const raw = window.localStorage.getItem(THEME_STORAGE_KEY);
+    if (raw == null) return defaultValue;
+    if (raw === 'light' || raw === 'dark' || raw === 'system') return raw;
+    return defaultValue;
+  } catch {
+    return defaultValue;
+  }
+}
+
+export function writeTheme(value: StudioTheme): void {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem(THEME_STORAGE_KEY, value);
   } catch {
     // no-op
   }

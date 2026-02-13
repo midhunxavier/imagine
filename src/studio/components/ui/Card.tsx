@@ -14,8 +14,8 @@ function paddingClasses(padding: CardPadding) {
 }
 
 function variantClasses(variant: CardVariant) {
-  if (variant === 'panel') return 'bg-studio-panel';
-  return 'bg-white';
+  if (variant === 'panel') return 'bg-studio-panel dark:bg-gray-800';
+  return 'bg-white dark:bg-gray-800';
 }
 
 export type CardProps = React.HTMLAttributes<HTMLDivElement> & {

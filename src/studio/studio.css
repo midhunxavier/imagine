@@ -5,6 +5,76 @@
   color-scheme: light;
 }
 
+/* Dark mode color scheme */
+:root.dark {
+  color-scheme: dark;
+}
+
+/* Theme transition - smooth color changes */
+html {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Prevent FOUC - hide content until theme is applied */
+html:not(.light):not(.dark) {
+  visibility: hidden;
+}
+
+/* Dark mode overrides for key elements */
+.dark {
+  --studio-bg: #020617;
+  --studio-surface: #0F172A;
+  --studio-panel: #1E293B;
+  --studio-border: #334155;
+  --studio-text: #F1F5F9;
+  --studio-subtle: #94A3B8;
+}
+
+.dark body {
+  background-color: var(--studio-bg);
+  color: var(--studio-text);
+}
+
+.dark .bg-studio-bg {
+  background-color: var(--studio-bg);
+}
+
+.dark .bg-studio-panel {
+  background-color: var(--studio-panel);
+}
+
+.dark .bg-studio-surface {
+  background-color: var(--studio-surface);
+}
+
+.dark .border-studio-border {
+  border-color: var(--studio-border);
+}
+
+.dark .text-studio-text {
+  color: var(--studio-text);
+}
+
+.dark .text-studio-subtle {
+  color: var(--studio-subtle);
+}
+
+.dark .hover\:bg-studio-panel:hover {
+  background-color: var(--studio-panel);
+}
+
+.dark .active\:bg-studio-panel:active {
+  background-color: var(--studio-panel);
+}
+
+.dark .bg-white {
+  background-color: var(--studio-surface);
+}
+
+.dark .hover\:bg-white:hover {
+  background-color: var(--studio-panel);
+}
+
 @layer utilities {
   .studio-checkerboard {
     background-image: linear-gradient(45deg, #e5e7eb 25%, transparent 25%),
@@ -17,5 +87,71 @@
       0 13px,
       13px -13px,
       -13px 0px;
+  }
+}
+
+/* Toast progress bar animation */
+@keyframes toast-progress {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
+
+/* Shimmer animation for skeletons */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Fade in animation */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Slide in from right */
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Scale in animation */
+@keyframes scale-in {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Reduced motion support - disable animations */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

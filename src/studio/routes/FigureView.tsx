@@ -7,6 +7,10 @@ import { ControlsPanel, Header, PreviewCanvas } from '../components/layout';
 import { EditableOverlay, EditableProvider } from '../editing';
 import { loadFigureComponent } from '../figureLoader';
 import { loadProject } from '../projectLoader';
+import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
+import { useSidebarFocus } from '../hooks/useSidebarFocus';
+import { useTheme } from '../hooks/useTheme';
+import { useToast } from '../hooks/useToast';
 import { useProjectProps } from '../useProjectProps';
 
 type ZoomMode = { kind: 'fit' } | { kind: 'percent'; value: number };
@@ -48,13 +52,18 @@ export function FigureView() {
   const [controlsCollapsed, setControlsCollapsed] = useState(false);
   const [project, setProject] = useState<ProjectDefinition | null>(null);
   const [projectError, setProjectError] = useState<string | null>(null);
+  const { error: showError, success: showSuccess } = useToast();
 
   useEffect(() => {
     if (!projectId) return;
     setProject(null);
     setProjectError(null);
-    loadProject(projectId).then(setProject, (err) => setProjectError(String(err?.message ?? err)));
-  }, [projectId]);
+    loadProject(projectId).then(setProject, (err) => {
+      const msg = String(err?.message ?? err);
+      setProjectError(msg);
+      showError('Failed to load project', msg);
+    });
+  }, [projectId, showError]);
 
   const fig = project?.figures.find((f) => f.id === figureId);
   const variant: FigureVariant | undefined = useMemo(() => {
@@ -159,6 +168,113 @@ export function FigureView() {
   const zoomValue = zoom.kind === 'percent' ? zoom.value : Math.round(scale * 100);
   const renderRouteTo = `/render/${encodeURIComponent(projectId)}/${encodeURIComponent(fig.id)}/${encodeURIComponent(variant.id)}`;
   const figureRootRef = useRef<HTMLDivElement | null>(null);
+  const { focusSearch } = useSidebarFocus();
+  const { toggleTheme } = useTheme();
+
+  useKeyboardShortcuts({
+    shortcuts: [
+      {
+        key: 's',
+        ctrl: true,
+        description: 'Force save',
+        handler: async () => {
+          try {
+            await propsState.forceSave(propsState.file);
+            showSuccess('Changes saved');
+          } catch (err) {
+            showError('Failed to save', String((err as Error)?.message ?? err));
+          }
+        }
+      },
+      {
+        key: 'z',
+        ctrl: true,
+        shift: false,
+        description: 'Undo',
+        handler: () => {
+          if (propsState.canUndo) propsState.undo();
+        }
+      },
+      {
+        key: 'z',
+        ctrl: true,
+        shift: true,
+        description: 'Redo',
+        handler: () => {
+          if (propsState.canRedo) propsState.redo();
+        }
+      },
+      {
+        key: 'Escape',
+        description: 'Exit edit mode',
+        handler: () => {
+          setIsEditMode(false);
+        }
+      },
+      {
+        key: 'k',
+        ctrl: true,
+        description: 'Focus search',
+        handler: () => {
+          focusSearch();
+        }
+      },
+      {
+        key: '0',
+        ctrl: true,
+        description: 'Fit to view',
+        handler: () => {
+          setZoom({ kind: 'fit' });
+        }
+      },
+      {
+        key: '=',
+        ctrl: true,
+        description: 'Zoom in',
+        handler: () => {
+          setZoom((prev) => {
+            const current = prev.kind === 'percent' ? prev.value : Math.round(scale * 100);
+            return { kind: 'percent', value: coerceZoomValue(current + 25) };
+          });
+        }
+      },
+      {
+        key: '-',
+        ctrl: true,
+        description: 'Zoom out',
+        handler: () => {
+          setZoom((prev) => {
+            const current = prev.kind === 'percent' ? prev.value : Math.round(scale * 100);
+            return { kind: 'percent', value: coerceZoomValue(current - 25) };
+          });
+        }
+      },
+      {
+        key: 'c',
+        ctrl: true,
+        shift: true,
+        description: 'Copy JSON',
+        handler: async () => {
+          const json = JSON.stringify(variantOverrides, null, 2);
+          try {
+            await navigator.clipboard.writeText(json);
+            showSuccess('JSON copied to clipboard');
+          } catch {
+            window.prompt('Copy overrides JSON:', json);
+          }
+        }
+      },
+      {
+        key: 'l',
+        ctrl: true,
+        shift: true,
+        description: 'Toggle theme',
+        handler: () => {
+          toggleTheme();
+        }
+      }
+    ]
+  });
 
   return (
     <div className="flex flex-1 min-w-0 flex-col">
@@ -213,6 +329,7 @@ export function FigureView() {
             const json = JSON.stringify(variantOverrides, null, 2);
             try {
               await navigator.clipboard.writeText(json);
+              showSuccess('JSON copied to clipboard');
             } catch {
               window.prompt('Copy overrides JSON:', json);
             }
@@ -223,6 +340,10 @@ export function FigureView() {
           loadError={propsState.loadError}
           collapsed={controlsCollapsed}
           onToggleCollapsed={() => setControlsCollapsed((current) => !current)}
+          onUndo={propsState.undo}
+          onRedo={propsState.redo}
+          canUndo={propsState.canUndo}
+          canRedo={propsState.canRedo}
         />
       </div>
     </div>
