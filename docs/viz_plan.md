@@ -66,14 +66,19 @@ interface ButtonProps {
 // Tailwind classes for variants, sizes, states
 ---
 Phase 3: Enhanced Controls System
+Notes
+- Phase 3 `ColorControl` uses native `<input type="color">` + hex input and stores colors as `#RRGGBB` strings (no alpha). Phase 4 introduces a custom picker UI.
+- Phase 3 `SelectControl` is a searchable combobox dropdown (Arrow/Enter/Escape + click outside to close) and supports optional option groups.
+- Phase 3 `SizeControl` stores values as `{ width: number; height: number }` in `props[key]` (px by convention).
+
 3.1 Control Components (src/studio/components/controls/)
 | Control | Features |
 |---------|----------|
 | TextControl.tsx | Label, input, character count, clear button |
 | MultilineControl.tsx | Auto-resize, character limit, placeholder |
 | NumberControl.tsx | Input + slider, step buttons, min/max display |
-| ColorControl.tsx | Click to open picker, swatch preview, hex display |
-| RangeControl.tsx | Slider with value label, step marks |
+| ColorControl.tsx | Native color swatch + hex input + presets row |
+| RangeControl.tsx | Slider + numeric input + value label |
 | BooleanControl.tsx | Switch with label, optional description |
 | SelectControl.tsx | Searchable dropdown with option groups |
 | FontControl.tsx | Font family picker with previews |
@@ -93,7 +98,7 @@ export type FigureControl =
   | { kind: 'text'; ... }
   | { kind: 'number'; ... }
   | { kind: 'boolean'; ... }
-  | { kind: 'select'; ... }
+  | { kind: 'select'; ... } // options may include `group?: string`
   | { kind: 'color'; key: string; label?: string; presets?: string[] }
   | { kind: 'range'; key: string; label?: string; min: number; max: number; step?: number }
   | { kind: 'font'; key: string; label?: string; fonts?: string[] }
@@ -105,16 +110,16 @@ ColorPicker.tsx (src/studio/components/ui/ColorPicker.tsx):
 - Popover-based picker (appears on click)
 - Saturation-lightness canvas (2D picker)
 - Hue slider (horizontal)
-- Alpha slider (optional)
 - Hex/RGB input fields
 - Preset colors grid
 - Recent colors (stored in localStorage)
+- Color value persisted as `#RRGGBB` (uppercase, no alpha in Phase 4)
 4.2 Implementation Approach
 Use a lightweight approach (no heavy dependencies):
 1. Canvas-based saturation/lightness picker
-2. Range input for hue/alpha
+2. Range input for hue
 3. Color conversion utilities (HSL ↔ RGB ↔ Hex)
-4. Click outside to close
+4. Click outside and Escape to close
 4.3 Color Utilities
 Create src/studio/utils/color.ts:
 export function hexToRgb(hex: string): [number, number, number];
@@ -123,6 +128,12 @@ export function hslToRgb(h: number, s: number, l: number): [number, number, numb
 export function rgbToHsl(r: number, g: number, b: number): [number, number, number];
 ---
 Phase 5: Inline Text Editing
+Phase 5 notes:
+- Activation is explicit via an **Edit Text** toggle in FigureView.
+- Inline targets are SVG `<text>` nodes marked with `data-editable-key`.
+- Save semantics: Enter saves and exits, Escape cancels, blur auto-saves, Tab/Shift+Tab moves between editable keys.
+- Inline edits persist to `props[key]` even when a matching manifest text control is not defined.
+- Initial rollout annotations: `hello-world`, `equation`, `ai-agent-architecture`.
 5.1 Context & State Management
 EditableContext.tsx (src/studio/editing/):
 interface EditableContextValue {
@@ -137,8 +148,8 @@ interface EditableContextValue {
 }
 interface EditableElementInfo {
   key: string;
-  bounds: DOMRect;
-  fontSize: number;
+  bounds: { left: number; top: number; width: number; height: number }; // figure-local coordinates
+  fontSize: string;
   fontWeight: string | number;
   fontFamily: string;
   fill: string;

@@ -3,7 +3,8 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { inferControlsFromProps } from '../../core/controls';
 import type { FigureControl, FigureVariant, ProjectDefinition } from '../../core/manifest';
 import { resolveSize } from '../../framework/sizing';
-import { Button, ButtonLink, Input, Select, Switch, Textarea } from '../components/ui';
+import { ControlsPanel, Header, PreviewCanvas } from '../components/layout';
+import { EditableOverlay, EditableProvider } from '../editing';
 import { loadFigureComponent } from '../figureLoader';
 import { loadProject } from '../projectLoader';
 import { useProjectProps } from '../useProjectProps';
@@ -43,6 +44,8 @@ export function FigureView() {
   const [FigureComponent, setFigureComponent] = useState<React.ComponentType<any> | null>(null);
   const [zoom, setZoom] = useState<ZoomMode>({ kind: 'fit' });
   const [checker, setChecker] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [controlsCollapsed, setControlsCollapsed] = useState(false);
   const [project, setProject] = useState<ProjectDefinition | null>(null);
   const [projectError, setProjectError] = useState<string | null>(null);
 
@@ -124,11 +127,20 @@ export function FigureView() {
     );
   }
 
-  const controls: FigureControl[] = (() => {
+  const controls = useMemo<FigureControl[]>(() => {
     const explicit = [...(fig.controls ?? []), ...(variant.controls ?? [])];
     if (explicit.length) return explicit;
     return inferControlsFromProps(variant.props ?? {});
-  })();
+  }, [fig.controls, variant.controls, variant.props]);
+
+  const textControlMetaByKey = useMemo(() => {
+    const map: Record<string, { multiline?: boolean }> = {};
+    for (const control of controls) {
+      if (control.kind !== 'text') continue;
+      map[control.key] = { multiline: Boolean(control.multiline) };
+    }
+    return map;
+  }, [controls]);
 
   // const size = ... (already defined above)
   const background = variant.background ?? 'white';
@@ -143,210 +155,75 @@ export function FigureView() {
   };
 
   const mmText = size.mm && size.dpi ? `${size.mm.width}×${size.mm.height} mm @ ${size.dpi}dpi` : null;
+  const sizeLabel = `${size.width}×${size.height} px${mmText ? ` • ${mmText}` : ''}`;
+  const zoomValue = zoom.kind === 'percent' ? zoom.value : Math.round(scale * 100);
+  const renderRouteTo = `/render/${encodeURIComponent(projectId)}/${encodeURIComponent(fig.id)}/${encodeURIComponent(variant.id)}`;
+  const figureRootRef = useRef<HTMLDivElement | null>(null);
 
   return (
     <div className="flex flex-1 min-w-0 flex-col">
-      <div className="flex items-start justify-between gap-4 border-b border-studio-border bg-white px-4 py-4">
-        <div className="min-w-0">
-          <div className="text-base font-extrabold">{fig.title}</div>
-          <div className="mt-1 text-sm text-studio-subtle">
-            <span className="font-mono">{fig.id}</span> • {size.width}×{size.height} px{mmText ? ` • ${mmText}` : ''}
-          </div>
-        </div>
-        <div className="flex flex-wrap items-end gap-2.5">
-          <Select
-            label="Variant"
-            className="min-w-[160px]"
-            value={variant.id}
-            onChange={(e) =>
-              navigate(
-                `/project/${encodeURIComponent(projectId)}/figure/${encodeURIComponent(fig.id)}/${encodeURIComponent(
-                  e.target.value
-                )}`
-              )
-            }
-            options={fig.variants.map((v) => ({ value: v.id, label: v.title ? `${v.title} (${v.id})` : v.id }))}
-          />
-
-          <div className="inline-flex gap-2">
-            <Button size="sm" onClick={() => setZoom({ kind: 'fit' })}>
-              Fit
-            </Button>
-            <Button size="sm" onClick={() => setZoom({ kind: 'percent', value: 100 })}>
-              100%
-            </Button>
-            <Button size="sm" onClick={() => setZoom({ kind: 'percent', value: 200 })}>
-              200%
-            </Button>
-          </div>
-
-          <Input
-            containerClassName="min-w-[110px]"
-            label="Zoom"
-            type="number"
-            min={5}
-            max={800}
-            step={5}
-            value={zoom.kind === 'percent' ? zoom.value : Math.round(scale * 100)}
-            onChange={(e) => setZoom({ kind: 'percent', value: coerceZoomValue(Number(e.target.value)) })}
-          />
-
-          <Switch checked={checker} onCheckedChange={setChecker} label="Checkerboard" />
-
-          <ButtonLink
-            to={`/render/${encodeURIComponent(projectId)}/${encodeURIComponent(fig.id)}/${encodeURIComponent(variant.id)}`}
-            target="_blank"
-          >
-            Render route
-          </ButtonLink>
-        </div>
-      </div>
+      <Header
+        projectId={projectId}
+        figureId={fig.id}
+        figureTitle={fig.title}
+        sizeLabel={sizeLabel}
+        variants={fig.variants.map((v) => ({ id: v.id, title: v.title }))}
+        activeVariantId={variant.id}
+        onVariantChange={(nextVariantId) =>
+          navigate(`/project/${encodeURIComponent(projectId)}/figure/${encodeURIComponent(fig.id)}/${encodeURIComponent(nextVariantId)}`)
+        }
+        zoomValue={zoomValue}
+        onZoomInput={(value) => setZoom({ kind: 'percent', value: coerceZoomValue(value) })}
+        onFit={() => setZoom({ kind: 'fit' })}
+        onZoom100={() => setZoom({ kind: 'percent', value: 100 })}
+        onZoom200={() => setZoom({ kind: 'percent', value: 200 })}
+        checker={checker}
+        onCheckerChange={setChecker}
+        isEditMode={isEditMode}
+        onEditModeChange={setIsEditMode}
+        renderRouteTo={renderRouteTo}
+        controlsCollapsed={controlsCollapsed}
+        onToggleControlsCollapse={() => setControlsCollapsed((current) => !current)}
+      />
 
       <div className="flex flex-1 min-h-0">
-        <div
-          className={`flex-1 min-w-0 overflow-auto bg-studio-bg p-4 ${checker ? 'studio-checkerboard' : ''}`}
-          ref={surfaceRef}
+        <EditableProvider
+          isEditMode={isEditMode}
+          values={effectiveVariantProps as Record<string, unknown>}
+          onSetValue={(key, value) => propsState.setVariantOverride(fig.id, variant.id, key, value)}
         >
-          <div className="origin-top-left inline-block" style={{ transform: `scale(${scale})` }}>
-            <div id="figure-root" className="shadow-figure" style={{ width: size.width, height: size.height }}>
-              {FigureComponent ? <FigureComponent {...props} /> : <div className="p-4 text-sm text-studio-subtle">Loading…</div>}
-            </div>
-          </div>
-        </div>
+          <PreviewCanvas
+            surfaceRef={surfaceRef}
+            figureRootRef={figureRootRef}
+            scale={scale}
+            checker={checker}
+            size={size}
+            figureNode={FigureComponent ? <FigureComponent {...props} /> : <div className="p-4 text-sm text-studio-subtle">Loading…</div>}
+            overlayNode={<EditableOverlay rootRef={figureRootRef} scale={scale} textControlMetaByKey={textControlMetaByKey} />}
+          />
+        </EditableProvider>
 
-        <aside className="w-[360px] shrink-0 overflow-auto border-l border-studio-border bg-white p-4" aria-label="Controls">
-          <div className="mb-2 flex items-center justify-between gap-2.5">
-            <div className="font-extrabold">Controls</div>
-            <div className="inline-flex gap-2">
-              <Button
-                size="sm"
-                onClick={() => propsState.resetVariantOverrides(fig.id, variant.id)}
-                title="Clear saved overrides for this variant"
-              >
-                Reset
-              </Button>
-              <Button
-                size="sm"
-                onClick={async () => {
-                  const json = JSON.stringify(variantOverrides, null, 2);
-                  try {
-                    await navigator.clipboard.writeText(json);
-                  } catch {
-                    window.prompt('Copy overrides JSON:', json);
-                  }
-                }}
-                title="Copy overrides JSON"
-              >
-                Copy JSON
-              </Button>
-            </div>
-          </div>
-
-          <div className="mb-3 text-xs text-studio-subtle">
-            {propsState.readOnly ? (
-              <span title={propsState.loadError ?? undefined}>Saving disabled</span>
-            ) : propsState.saveStatus === 'saving' ? (
-              <span>Saving…</span>
-            ) : propsState.saveStatus === 'saved' ? (
-              <span className="font-semibold text-emerald-700">Saved</span>
-            ) : propsState.saveStatus === 'error' ? (
-              <span className="font-semibold text-studio-red">Save failed</span>
-            ) : (
-              <span>Edits auto-save</span>
-            )}
-            {propsState.saveError ? <div className="mt-2 font-mono text-xs text-studio-red">{propsState.saveError}</div> : null}
-          </div>
-
-          {controls.length ? (
-            <div className="flex flex-col gap-2.5">
-              {controls.map((c, idx) => {
-                const key = c.key;
-                const label = c.label ?? key;
-                const currentValue = (effectiveVariantProps as any)[key];
-
-                if (c.kind === 'text') {
-                  const value = typeof currentValue === 'string' ? currentValue : currentValue == null ? '' : String(currentValue);
-                  if (c.multiline) {
-                    return (
-                      <Textarea
-                        key={`${key}:${idx}`}
-                        label={label}
-                        rows={5}
-                        autoResize
-                        maxRows={12}
-                        placeholder={c.placeholder}
-                        value={value}
-                        onChange={(e) => propsState.setVariantOverride(fig.id, variant.id, key, e.target.value)}
-                      />
-                    );
-                  }
-                  return (
-                    <Input
-                      key={`${key}:${idx}`}
-                      label={label}
-                      type="text"
-                      placeholder={c.placeholder}
-                      value={value}
-                      onChange={(e) => propsState.setVariantOverride(fig.id, variant.id, key, e.target.value)}
-                    />
-                  );
-                }
-
-                if (c.kind === 'number') {
-                  const value = typeof currentValue === 'number' && Number.isFinite(currentValue) ? String(currentValue) : '';
-                  return (
-                    <Input
-                      key={`${key}:${idx}`}
-                      label={label}
-                      type="number"
-                      min={c.min}
-                      max={c.max}
-                      step={c.step}
-                      value={value}
-                      onChange={(e) => {
-                        const s = e.target.value;
-                        if (!s) propsState.setVariantOverride(fig.id, variant.id, key, undefined);
-                        else {
-                          const n = Number(s);
-                          propsState.setVariantOverride(fig.id, variant.id, key, Number.isFinite(n) ? n : undefined);
-                        }
-                      }}
-                    />
-                  );
-                }
-
-                if (c.kind === 'boolean') {
-                  const checked = Boolean(currentValue);
-                  return (
-                    <Switch
-                      key={`${key}:${idx}`}
-                      checked={checked}
-                      onCheckedChange={(next) => propsState.setVariantOverride(fig.id, variant.id, key, next)}
-                      label={label}
-                    />
-                  );
-                }
-
-                if (c.kind === 'select') {
-                  const value = typeof currentValue === 'string' ? currentValue : currentValue == null ? '' : String(currentValue);
-                  return (
-                    <Select
-                      key={`${key}:${idx}`}
-                      label={label}
-                      value={value}
-                      onChange={(e) => propsState.setVariantOverride(fig.id, variant.id, key, e.target.value)}
-                      options={c.options.map((opt) => ({ value: opt.value, label: opt.label }))}
-                    />
-                  );
-                }
-
-                return null;
-              })}
-            </div>
-          ) : (
-            <div className="py-3 text-sm text-studio-subtle">No editable props found.</div>
-          )}
-        </aside>
+        <ControlsPanel
+          controls={controls}
+          effectiveVariantProps={effectiveVariantProps as Record<string, unknown>}
+          variantOverrides={variantOverrides}
+          onControlChange={(key, value) => propsState.setVariantOverride(fig.id, variant.id, key, value)}
+          onReset={() => propsState.resetVariantOverrides(fig.id, variant.id)}
+          onCopyJson={async () => {
+            const json = JSON.stringify(variantOverrides, null, 2);
+            try {
+              await navigator.clipboard.writeText(json);
+            } catch {
+              window.prompt('Copy overrides JSON:', json);
+            }
+          }}
+          saveStatus={propsState.saveStatus}
+          saveError={propsState.saveError}
+          readOnly={propsState.readOnly}
+          loadError={propsState.loadError}
+          collapsed={controlsCollapsed}
+          onToggleCollapsed={() => setControlsCollapsed((current) => !current)}
+        />
       </div>
     </div>
   );

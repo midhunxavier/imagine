@@ -93,22 +93,49 @@ export default function AIAgentArchitectureFigure({
       <text x={70} y={44} fontSize={18} fontWeight={800} fill={theme.colors.text}>
         {title}
       </text>
-      <Label x={70} y={76} text={subtitle} fontSize={13} fill={theme.colors.subtleText} />
+      <Label x={70} y={76} text={subtitle} fontSize={13} fill={theme.colors.subtleText} editableKey="subtitle" />
 
-      <Box x={centerX - boxW / 2} y={yUser} width={boxW} height={boxH} label={userInput} fill={theme.colors.panel} stroke={theme.colors.blue} />
+      <Box
+        x={centerX - boxW / 2}
+        y={yUser}
+        width={boxW}
+        height={boxH}
+        label={userInput}
+        labelEditableKey="userInput"
+        fill={theme.colors.panel}
+        stroke={theme.colors.blue}
+      />
 
-      <Box x={xOrchestrator} y={yOrchestrator} width={boxW} height={mainBoxH} label={orchestrator} fill={theme.colors.panel} stroke={theme.colors.teal} />
+      <Box
+        x={xOrchestrator}
+        y={yOrchestrator}
+        width={boxW}
+        height={mainBoxH}
+        label={orchestrator}
+        labelEditableKey="orchestrator"
+        fill={theme.colors.panel}
+        stroke={theme.colors.teal}
+      />
 
       <Arrow x1={centerX} y1={yUser + boxH} x2={centerX} y2={yOrchestrator} />
 
-      <Box x={xLLM} y={yLLM} width={boxW} height={mainBoxH} label={llm} fill={theme.colors.panel} stroke={theme.colors.orange} />
+      <Box
+        x={xLLM}
+        y={yLLM}
+        width={boxW}
+        height={mainBoxH}
+        label={llm}
+        labelEditableKey="llm"
+        fill={theme.colors.panel}
+        stroke={theme.colors.orange}
+      />
 
       <Arrow x1={xOrchestrator + boxW} y1={yOrchestrator + mainBoxH / 2} x2={xLLM} y2={yLLM + mainBoxH / 2} />
       <DashedArrow x1={xLLM} y1={yLLM + mainBoxH / 2} x2={xOrchestrator + boxW} y2={yOrchestrator + mainBoxH / 2} stroke={theme.colors.subtleText} />
 
-      <Box x={xTools1} y={yTools1} width={boxW - 20} height={50} label={tools1} fill="#F3F4F6" stroke="#9CA3AF" />
-      <Box x={xTools2} y={yTools2} width={boxW - 20} height={50} label={tools2} fill="#F3F4F6" stroke="#9CA3AF" />
-      <Box x={xTools3} y={yTools3} width={boxW - 20} height={50} label={tools3} fill="#F3F4F6" stroke="#9CA3AF" />
+      <Box x={xTools1} y={yTools1} width={boxW - 20} height={50} label={tools1} labelEditableKey="tools1" fill="#F3F4F6" stroke="#9CA3AF" />
+      <Box x={xTools2} y={yTools2} width={boxW - 20} height={50} label={tools2} labelEditableKey="tools2" fill="#F3F4F6" stroke="#9CA3AF" />
+      <Box x={xTools3} y={yTools3} width={boxW - 20} height={50} label={tools3} labelEditableKey="tools3" fill="#F3F4F6" stroke="#9CA3AF" />
 
       <Arrow x1={xLLM + boxW} y1={yLLM + 25} x2={xTools1} y2={yTools1 + 25} />
       <Arrow x1={xLLM + boxW} y1={yLLM + mainBoxH / 2} x2={xTools2} y2={yTools2 + 25} />
@@ -118,16 +145,34 @@ export default function AIAgentArchitectureFigure({
       <DashedArrow x1={xTools2} y1={yTools2 + 25} x2={xLLM + boxW} y2={yLLM + mainBoxH / 2} stroke={theme.colors.subtleText} />
       <DashedArrow x1={xTools3} y1={yTools3 + 25} x2={xLLM + boxW} y2={yLLM + mainBoxH - 25} stroke={theme.colors.subtleText} />
 
-      <Box x={xMemory} y={yMemory} width={boxW} height={boxH} label={memory} fill={theme.colors.panel} stroke={theme.colors.red} />
+      <Box
+        x={xMemory}
+        y={yMemory}
+        width={boxW}
+        height={boxH}
+        label={memory}
+        labelEditableKey="memory"
+        fill={theme.colors.panel}
+        stroke={theme.colors.red}
+      />
 
       <Arrow x1={xOrchestrator + boxW / 2} y1={yOrchestrator + mainBoxH} x2={xMemory + boxW / 2} y2={yMemory} />
       <DashedArrow x1={xMemory + boxW / 2} y1={yMemory + boxH} x2={xOrchestrator + boxW / 2} y2={yOrchestrator + mainBoxH} stroke={theme.colors.subtleText} />
 
-      <Box x={xOutput} y={yOutput} width={boxW} height={boxH} label={output} fill={theme.colors.panel} stroke={theme.colors.teal} />
+      <Box
+        x={xOutput}
+        y={yOutput}
+        width={boxW}
+        height={boxH}
+        label={output}
+        labelEditableKey="output"
+        fill={theme.colors.panel}
+        stroke={theme.colors.teal}
+      />
 
       <Arrow x1={centerX} y1={yMemory + boxH} x2={centerX} y2={yOutput} />
 
-      <Callout x={70} y={yOutput + boxH + 30} width={boxW + 100} height={44} text={notes} />
+      <Callout x={70} y={yOutput + boxH + 30} width={boxW + 100} height={44} text={notes} textEditableKey="notes" />
     </Figure>
   );
 }

@@ -9,7 +9,11 @@ export type FigureControl =
   | { kind: 'text'; key: string; label?: string; multiline?: boolean; placeholder?: string }
   | { kind: 'number'; key: string; label?: string; min?: number; max?: number; step?: number }
   | { kind: 'boolean'; key: string; label?: string }
-  | { kind: 'select'; key: string; label?: string; options: Array<{ label: string; value: string }> };
+  | { kind: 'select'; key: string; label?: string; options: Array<{ label: string; value: string; group?: string }> }
+  | { kind: 'color'; key: string; label?: string; presets?: string[] }
+  | { kind: 'range'; key: string; label?: string; min: number; max: number; step?: number }
+  | { kind: 'font'; key: string; label?: string; fonts?: string[] }
+  | { kind: 'size'; key: string; label?: string; lockAspectRatio?: boolean };
 
 export type FigureVariant = {
   id: string;
@@ -82,6 +86,26 @@ function validateControls(controls: FigureControl[], label: string) {
       for (const opt of c.options) {
         if (!opt.label.trim()) throw new Error(`${label} select option label must be non-empty`);
         if (!opt.value.trim()) throw new Error(`${label} select option value must be non-empty`);
+        if (opt.group !== undefined && !opt.group.trim()) throw new Error(`${label} select option group must be non-empty`);
+      }
+    }
+    if (c.kind === 'range') {
+      if (!Number.isFinite(c.min) || !Number.isFinite(c.max)) throw new Error(`${label} range control min/max must be finite`);
+      if (c.min >= c.max) throw new Error(`${label} range control min must be less than max`);
+      if (c.step !== undefined && (!Number.isFinite(c.step) || c.step <= 0)) throw new Error(`${label} range control step must be positive`);
+    }
+    if (c.kind === 'color') {
+      if (c.presets) {
+        for (const preset of c.presets) {
+          if (!preset.trim()) throw new Error(`${label} color control presets must be non-empty strings`);
+        }
+      }
+    }
+    if (c.kind === 'font') {
+      if (c.fonts) {
+        for (const font of c.fonts) {
+          if (!font.trim()) throw new Error(`${label} font control fonts must be non-empty strings`);
+        }
       }
     }
   }
@@ -131,4 +155,3 @@ export function validateProject(project: ProjectDefinition): void {
     }
   }
 }
-

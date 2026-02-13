@@ -11,7 +11,8 @@ export function Label({
   text,
   fontSize = 13,
   fill = theme.colors.text,
-  anchor = 'start'
+  anchor = 'start',
+  editableKey
 }: {
   x: number;
   y: number;
@@ -19,9 +20,10 @@ export function Label({
   fontSize?: number;
   fill?: string;
   anchor?: 'start' | 'middle' | 'end';
+  editableKey?: string;
 }) {
   return (
-    <text x={x} y={y} fontSize={fontSize} fill={fill} textAnchor={anchor} dominantBaseline="middle">
+    <text data-editable-key={editableKey} x={x} y={y} fontSize={fontSize} fill={fill} textAnchor={anchor} dominantBaseline="middle">
       {text}
     </text>
   );
@@ -36,7 +38,8 @@ export function Box({
   fill = theme.colors.panel,
   stroke = theme.colors.axis,
   strokeWidth = theme.strokes.normal,
-  label
+  label,
+  labelEditableKey
 }: {
   x: number;
   y: number;
@@ -47,12 +50,14 @@ export function Box({
   stroke?: string;
   strokeWidth?: number;
   label?: string;
+  labelEditableKey?: string;
 }) {
   return (
     <g>
       <rect x={x} y={y} width={width} height={height} rx={rx} fill={fill} stroke={stroke} strokeWidth={strokeWidth} />
       {label ? (
         <text
+          data-editable-key={labelEditableKey}
           x={x + width / 2}
           y={y + height / 2}
           fontSize={13}
@@ -112,7 +117,8 @@ export function Callout({
   height,
   text,
   fill = '#FEF3C7',
-  stroke = '#F59E0B'
+  stroke = '#F59E0B',
+  textEditableKey
 }: {
   x: number;
   y: number;
@@ -121,14 +127,14 @@ export function Callout({
   text: string;
   fill?: string;
   stroke?: string;
+  textEditableKey?: string;
 }) {
   return (
     <g>
       <rect x={x} y={y} width={width} height={height} rx={theme.radii.sm} fill={fill} stroke={stroke} />
-      <text x={x + theme.spacing.sm} y={y + height / 2} fontSize={12} fill={theme.colors.text} dominantBaseline="middle">
+      <text data-editable-key={textEditableKey} x={x + theme.spacing.sm} y={y + height / 2} fontSize={12} fill={theme.colors.text} dominantBaseline="middle">
         {text}
       </text>
     </g>
   );
 }
-
